@@ -10,6 +10,7 @@ export const en = {
     copyButton: 'Copy Base64',
     copied: 'Copied!',
     resetButton: 'Reset Changes',
+    resetSuccess: 'Changes reset!',
     loading: 'Decoding...',
     success: 'Save loaded successfully!',
     error: 'Error decoding save file',
@@ -90,7 +91,7 @@ export const en = {
     giveAll: 'Give All',
     giveAllDesc: 'Add all missing Pokémon to your box',
     giveAllConfirmTitle: 'Give All Pokémon?',
-    giveAllConfirmDesc: 'This will add all missing base Pokémon to your box at level 100. Are you sure?',
+    giveAllConfirmDesc: 'This will add all missing base Pokémon to your box at level 1. Are you sure?',
     pokemonGiven: 'Pokémon added to box',
   },
   shiny: {
@@ -197,6 +198,7 @@ export const fr = {
     copyButton: 'Copier Base64',
     copied: 'Copié !',
     resetButton: 'Réinitialiser les modifications',
+    resetSuccess: 'Modifications réinitialisées !',
     loading: 'Décodage...',
     success: 'Sauvegarde chargée avec succès !',
     error: 'Erreur lors du décodage de la sauvegarde',
@@ -277,7 +279,7 @@ export const fr = {
     giveAll: 'Tout donner',
     giveAllDesc: 'Ajouter tous les Pokémon manquants dans la boîte',
     giveAllConfirmTitle: 'Donner tous les Pokémon ?',
-    giveAllConfirmDesc: 'Cela ajoutera tous les Pokémon de base manquants dans votre boîte au niveau 100. Êtes-vous sûr ?',
+    giveAllConfirmDesc: 'Cela ajoutera tous les Pokémon de base manquants dans votre boîte au niveau 1. Êtes-vous sûr ?',
     pokemonGiven: 'Pokémon ajoutés dans la boîte',
   },
   shiny: {

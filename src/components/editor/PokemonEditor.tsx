@@ -236,7 +236,7 @@ export function PokemonEditor({
 
   const handleGiveAll = () => {
     setShowGiveAllConfirm(false);
-    const count = onGiveAllPokemon(false, 100);
+    const count = onGiveAllPokemon(false, 1);
     if (count && count > 0) {
       toast.success(t('pokemon.pokemonGiven'), {
         description: `${count} Pokémon`,

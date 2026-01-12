@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Download, RotateCcw, Settings, Map, Swords, Sparkles, Trophy, BarChart3, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from 'sonner';
 import { GeneralEditor } from './editor/GeneralEditor';
 import { RoutesEditor } from './editor/RoutesEditor';
 import { PokemonEditor } from './editor/PokemonEditor';
@@ -45,6 +46,11 @@ export function SaveEditor({ editor }: SaveEditorProps) {
     }
   };
 
+  const handleReset = () => {
+    editor.resetChanges();
+    toast.success(t('common.resetSuccess'));
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Action Buttons */}
@@ -57,7 +63,7 @@ export function SaveEditor({ editor }: SaveEditorProps) {
         
         <div className="flex items-center gap-3">
           <Button
-            onClick={editor.resetChanges}
+            onClick={handleReset}
             variant="outline"
             className="border-white/10 hover:bg-white/5 gap-2"
           >
