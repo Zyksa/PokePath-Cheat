@@ -227,6 +227,20 @@ export function useSaveEditor() {
     }
   }, [saveData]);
 
+  const updatePokemon = useCallback((pokemonIndex: number, pokemon: TeamPokemon, isBox: boolean = false) => {
+    if (!saveData) return;
+    
+    if (isBox && saveData.box) {
+      const newBox = [...saveData.box];
+      newBox[pokemonIndex] = pokemon;
+      setSaveData({ ...saveData, box: newBox });
+    } else if (saveData.team) {
+      const newTeam = [...saveData.team];
+      newTeam[pokemonIndex] = pokemon;
+      setSaveData({ ...saveData, team: newTeam });
+    }
+  }, [saveData]);
+
   const toggleAchievement = useCallback((index: number) => {
     if (!saveData) return;
     
@@ -303,6 +317,7 @@ export function useSaveEditor() {
     removePokemon,
     updatePokemonTargetMode,
     togglePokemonFavorite,
+    updatePokemon,
     toggleAchievement,
     setAllAchievements,
     updateStat,

@@ -3,6 +3,7 @@ import { LanguageToggle } from './components/LanguageToggle';
 import { FileUploader } from './components/FileUploader';
 import { SaveEditor } from './components/SaveEditor';
 import { useSaveEditor } from './hooks/useSaveEditor';
+import { Toaster } from '@/components/ui/sonner';
 import { Coins, Map, Swords, Sparkles, Trophy, BarChart3, Gift, Target, Heart, ArrowUpCircle, Box } from 'lucide-react';
 import './i18n';
 
@@ -145,6 +146,7 @@ function App() {
           </div>
         </footer>
       </div>
+      <Toaster richColors position="bottom-right" />
     </div>
   );
 }

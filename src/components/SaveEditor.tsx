@@ -152,6 +152,7 @@ export function SaveEditor({ editor }: SaveEditorProps) {
         <TabsContent value="pokemon" className="mt-0">
           <PokemonEditor
             saveData={saveData}
+            onUpdatePokemon={editor.updatePokemon}
             onUpdateLevel={editor.updatePokemonLevel}
             onMaxAllLevels={editor.maxAllLevels}
             onAddPokemon={editor.addPokemon}

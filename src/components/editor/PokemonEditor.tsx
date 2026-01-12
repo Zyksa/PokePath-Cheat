@@ -9,12 +9,15 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { toast } from 'sonner';
 import type { SaveData, TeamPokemon, PokemonSpecie, TargetMode } from '@/types/save';
 import { getPokemonDisplayName, getAbilityName, getAbilityDescription, TARGET_MODES } from '@/types/save';
 import { POKEMON_DATABASE } from '@/data/pokemonData';
+import { EvolutionModal, getEvolutionForLevel } from './EvolutionModal';
 
 interface PokemonEditorProps {
   saveData: SaveData;
+  onUpdatePokemon: (index: number, pokemon: TeamPokemon, isBox: boolean) => void;
   onUpdateLevel: (index: number, level: number, isBox: boolean) => void;
   onMaxAllLevels: () => void;
   onAddPokemon: (specie: PokemonSpecie, toBox: boolean, shiny: boolean, level: number) => void;
@@ -26,6 +29,7 @@ interface PokemonEditorProps {
 
 export function PokemonEditor({
   saveData,
+  onUpdatePokemon,
   onUpdateLevel,
   onMaxAllLevels,
   onAddPokemon,
@@ -39,6 +43,12 @@ export function PokemonEditor({
   const [abilityFilter, setAbilityFilter] = useState<string>('all');
   const [addShiny, setAddShiny] = useState(false);
   const [addLevel, setAddLevel] = useState(1);
+  
+  // Evolution modal state
+  const [evolutionModal, setEvolutionModal] = useState<{
+    isOpen: boolean;
+    pokemon: PokemonSpecie | null;
+  }>({ isOpen: false, pokemon: null });
   
   const langIndex = i18n.language === 'fr' ? 2 : 0;
   
@@ -109,6 +119,86 @@ export function PokemonEditor({
 
   const handleAddPokemon = (specie: PokemonSpecie, toBox: boolean) => {
     onAddPokemon(specie, toBox, addShiny, addLevel);
+    const pokemonName = getPokemonDisplayName(specie, langIndex);
+    const destination = toBox ? t('pokemon.boxPokemon') : t('pokemon.teamPokemon');
+    toast.success(t('pokemon.pokemonAdded'), {
+      description: `${pokemonName} → ${destination}`,
+    });
+  };
+
+  // Open evolution modal when clicking add
+  const handleOpenEvolutionModal = (specie: PokemonSpecie) => {
+    // Check if pokemon has evolutions
+    if (specie.evolution) {
+      setEvolutionModal({ isOpen: true, pokemon: specie });
+    } else {
+      // No evolution, show simple add buttons - but we still open modal to let user choose team/box
+      setEvolutionModal({ isOpen: true, pokemon: specie });
+    }
+  };
+
+  // Handle level change with evolution check
+  const handleLevelChange = (index: number, newLevel: number, isBox: boolean, pokemon: TeamPokemon) => {
+    // First update the level
+    onUpdateLevel(index, newLevel, isBox);
+    
+    // Check if Pokemon should evolve
+    const currentSpecie = pokemon.specie;
+    if (currentSpecie.evolution && newLevel >= currentSpecie.evolution.level) {
+      const evolvedSpecie = getEvolutionForLevel(currentSpecie, newLevel);
+      
+      // If the pokemon evolved to a different species
+      if (evolvedSpecie.id !== currentSpecie.id) {
+        const newPokemon = {
+          ...pokemon,
+          lvl: newLevel,
+          specie: evolvedSpecie,
+        };
+        onUpdatePokemon(index, newPokemon, isBox);
+        
+        const oldName = getPokemonDisplayName(currentSpecie, langIndex);
+        const newName = getPokemonDisplayName(evolvedSpecie, langIndex);
+        toast.success(t('pokemon.evolved'), {
+          description: `${oldName} → ${newName}`,
+        });
+      }
+    }
+  };
+
+  // Handle remove with toast
+  const handleRemovePokemon = (index: number, isBox: boolean) => {
+    const pokemon = isBox ? saveData.box?.[index] : saveData.team?.[index];
+    if (pokemon) {
+      const name = getPokemonDisplayName(pokemon.specie, langIndex);
+      onRemovePokemon(index, isBox);
+      toast.info(t('pokemon.pokemonRemoved'), {
+        description: name,
+      });
+    }
+  };
+
+  // Handle shiny toggle with toast
+  const handleToggleShiny = (index: number, isBox: boolean) => {
+    const pokemon = isBox ? saveData.box?.[index] : saveData.team?.[index];
+    if (pokemon) {
+      const name = getPokemonDisplayName(pokemon.specie, langIndex);
+      onToggleShiny(index, isBox);
+      toast.success(pokemon.shiny ? t('shiny.removeShiny') : t('shiny.makeShiny'), {
+        description: name,
+      });
+    }
+  };
+
+  // Handle favorite toggle with toast
+  const handleToggleFavorite = (index: number, isBox: boolean) => {
+    const pokemon = isBox ? saveData.box?.[index] : saveData.team?.[index];
+    if (pokemon) {
+      const name = getPokemonDisplayName(pokemon.specie, langIndex);
+      onToggleFavorite(index, isBox);
+      toast.success(pokemon.favorite ? t('pokemon.unfavorited') : t('pokemon.favorited'), {
+        description: name,
+      });
+    }
   };
 
   return (
@@ -168,11 +258,11 @@ export function PokemonEditor({
                   index={index}
                   isBox={isBox}
                   langIndex={langIndex}
-                  onUpdateLevel={onUpdateLevel}
-                  onRemove={onRemovePokemon}
+                  onUpdateLevel={(idx, lvl, box) => handleLevelChange(idx, lvl, box, pokemon)}
+                  onRemove={handleRemovePokemon}
                   onUpdateTargetMode={onUpdateTargetMode}
-                  onToggleFavorite={onToggleFavorite}
-                  onToggleShiny={onToggleShiny}
+                  onToggleFavorite={handleToggleFavorite}
+                  onToggleShiny={handleToggleShiny}
                   t={t}
                 />
               ))}
@@ -269,7 +359,7 @@ export function PokemonEditor({
                   specie={specie}
                   langIndex={langIndex}
                   level={addLevel}
-                  onAdd={handleAddPokemon}
+                  onAdd={handleOpenEvolutionModal}
                   t={t}
                 />
               ))}
@@ -277,6 +367,19 @@ export function PokemonEditor({
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Evolution Modal */}
+      {evolutionModal.pokemon && (
+        <EvolutionModal
+          isOpen={evolutionModal.isOpen}
+          onClose={() => setEvolutionModal({ isOpen: false, pokemon: null })}
+          basePokemon={evolutionModal.pokemon}
+          langIndex={langIndex}
+          level={addLevel}
+          shiny={addShiny}
+          onConfirm={handleAddPokemon}
+        />
+      )}
     </div>
   );
 }
@@ -479,7 +582,7 @@ interface GivePokemonCardProps {
   specie: PokemonSpecie;
   langIndex: number;
   level: number;
-  onAdd: (specie: PokemonSpecie, toBox: boolean) => void;
+  onAdd: (specie: PokemonSpecie) => void;
   t: (key: string) => string;
 }
 
@@ -498,6 +601,9 @@ function GivePokemonCard({
   const power = specie.power ? calculateStat(specie.power.base, specie.power.scale, displayLevel) : 0;
   const speed = specie.speed ? calculateStat(specie.speed.base, specie.speed.scale, displayLevel) : 0;
   const range = specie.range ? calculateStat(specie.range.base, specie.range.scale, displayLevel) : 0;
+
+  // Check if has evolutions
+  const hasEvolutions = !!specie.evolution;
 
   return (
     <div className="section-card p-3 card-hover">
@@ -568,26 +674,16 @@ function GivePokemonCard({
         </Badge>
       </div>
 
-      {/* Add buttons - stacked vertically to avoid overflow */}
-      <div className="flex flex-col gap-1.5">
-        <Button
-          size="sm"
-          onClick={() => onAdd(specie, false)}
-          className="w-full h-7 text-xs bg-blue-600 hover:bg-blue-500 gap-1"
-        >
-          <Users className="w-3 h-3" />
-          {t('pokemon.addToTeam')}
-        </Button>
-        <Button
-          size="sm"
-          onClick={() => onAdd(specie, true)}
-          variant="outline"
-          className="w-full h-7 text-xs border-white/10 hover:bg-white/5 gap-1"
-        >
-          <Box className="w-3 h-3" />
-          {t('pokemon.addToBox')}
-        </Button>
-      </div>
+      {/* Single Add button that opens evolution modal */}
+      <Button
+        size="sm"
+        onClick={() => onAdd(specie)}
+        className="w-full h-8 text-xs bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 gap-1"
+      >
+        <Plus className="w-3 h-3" />
+        {t('pokemon.addPokemon')}
+        {hasEvolutions && <span className="text-[10px] opacity-70">+evo</span>}
+      </Button>
     </div>
   );
 }
