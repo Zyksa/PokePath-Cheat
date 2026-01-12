@@ -4,7 +4,7 @@ import { FileUploader } from './components/FileUploader';
 import { SaveEditor } from './components/SaveEditor';
 import { useSaveEditor } from './hooks/useSaveEditor';
 import { Toaster } from '@/components/ui/sonner';
-import { Coins, Map, Swords, Sparkles, Trophy, BarChart3, Gift, Target, Heart, ArrowUpCircle, Box } from 'lucide-react';
+import { Coins, Map, Swords, Sparkles, Trophy, BarChart3, Gift, Target, Heart, ArrowUpCircle, Box, Languages } from 'lucide-react';
 import './i18n';
 
 function App() {
@@ -23,6 +23,7 @@ function App() {
     { icon: Box, label: t('features.box'), color: 'text-purple-400' },
     { icon: Trophy, label: t('features.achievements'), color: 'text-amber-400' },
     { icon: BarChart3, label: t('features.stats'), color: 'text-indigo-400' },
+    { icon: Languages, label: t('features.language'), color: 'text-sky-400' },
   ];
 
   return (

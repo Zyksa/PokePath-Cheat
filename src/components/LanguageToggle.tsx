@@ -1,24 +1,38 @@
 import { useTranslation } from 'react-i18next';
-import { Globe } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+
+// Flag emojis for visual language toggle
+const FLAGS = {
+  en: '🇬🇧',
+  fr: '🇫🇷',
+};
 
 export function LanguageToggle() {
   const { i18n } = useTranslation();
+  const currentLang = i18n.language as 'en' | 'fr';
+  const otherLang = currentLang === 'en' ? 'fr' : 'en';
 
   const toggleLanguage = () => {
-    const newLang = i18n.language === 'en' ? 'fr' : 'en';
-    i18n.changeLanguage(newLang);
+    i18n.changeLanguage(otherLang);
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
+    <button
       onClick={toggleLanguage}
-      className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-300"
+      className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
+      title={currentLang === 'en' ? 'Passer en Français' : 'Switch to English'}
     >
-      <Globe className="w-4 h-4" />
-      <span className="uppercase font-medium">{i18n.language}</span>
-    </Button>
+      {/* Current language flag (active) */}
+      <span className="text-2xl transition-transform group-hover:scale-110">
+        {FLAGS[currentLang]}
+      </span>
+      
+      {/* Arrow indicator */}
+      <span className="text-muted-foreground text-sm mx-1">→</span>
+      
+      {/* Other language flag (clickable target) */}
+      <span className="text-2xl opacity-50 group-hover:opacity-100 transition-all group-hover:scale-110">
+        {FLAGS[otherLang]}
+      </span>
+    </button>
   );
 }

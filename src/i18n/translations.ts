@@ -146,6 +146,7 @@ export const en = {
     box: 'Manage Box',
     achievements: 'Unlock Achievements',
     stats: 'Edit Statistics',
+    language: '🇬🇧/🇫🇷 Language',
   },
   footer: {
     madeWith: 'Made with',
@@ -323,6 +324,7 @@ export const fr = {
     box: 'Gérer la Boîte',
     achievements: 'Débloquer Succès',
     stats: 'Modifier Stats',
+    language: '🇬🇧/🇫🇷 Langue',
   },
   footer: {
     madeWith: 'Fait avec',

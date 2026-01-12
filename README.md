@@ -21,15 +21,16 @@
 | Feature | Description |
 |---------|-------------|
 | 💰 **Gold Editor** | Edit your gold amount instantly |
-| 🎁 **Give Pokémon** | Add any Pokémon to your team or box |
+| 🎁 **Give Pokémon** | Add any Pokémon to your team or box with evolution selector |
 | ✨ **Shiny Hack** | Make any Pokémon shiny with one click |
-| ⬆️ **Level Editor** | Set all Pokémon to max level |
+| ⬆️ **Level Editor** | Set all Pokémon to max level (auto-evolution) |
 | 🗺️ **Routes Manager** | Max out all routes and unlock stars |
 | 🏆 **Achievements** | Unlock all achievements instantly |
 | 📊 **Statistics Editor** | Modify all game statistics |
 | 🎯 **Target Mode** | Change Pokémon targeting preferences |
 | ❤️ **Favorites** | Set favorite Pokémon |
 | 📦 **Box Manager** | Manage your Pokémon box |
+| 🇬🇧🇫🇷 **Multi-language** | English/French with auto-detection |
 
 ## 🖼️ Screenshots
 
@@ -81,6 +82,8 @@ npm run dev
 
 - 🇬🇧 English
 - 🇫🇷 Français
+
+> **Auto-detection:** The language is automatically set based on your browser's locale. French users will see the interface in French, others in English. You can toggle anytime with the flag buttons!
 
 ## 🔑 Keywords
 
