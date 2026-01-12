@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Swords, ArrowUp, Plus, Trash2, Heart, Search, Sparkles, Box, Users, Zap, Target } from 'lucide-react';
+import { Swords, ArrowUp, Plus, Trash2, Heart, Search, Sparkles, Box, Users, Zap, Target, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import type { SaveData, TeamPokemon, PokemonSpecie, TargetMode } from '@/types/save';
 import { getPokemonDisplayName, getAbilityName, getAbilityDescription, TARGET_MODES } from '@/types/save';
 import { POKEMON_DATABASE } from '@/data/pokemonData';
-import { EvolutionModal, getEvolutionForLevel } from './EvolutionModal';
+import { EvolutionModal, getEvolutionForLevel, getFullEvolutionChain } from './EvolutionModal';
 
 interface PokemonEditorProps {
   saveData: SaveData;
@@ -201,6 +201,26 @@ export function PokemonEditor({
     }
   };
 
+  // Handle instant evolution to a specific form
+  const handleEvolveTo = (index: number, newSpecie: PokemonSpecie, newLevel: number, isBox: boolean) => {
+    const pokemon = isBox ? saveData.box?.[index] : saveData.team?.[index];
+    if (pokemon) {
+      const oldName = getPokemonDisplayName(pokemon.specie, langIndex);
+      const newName = getPokemonDisplayName(newSpecie, langIndex);
+      
+      const newPokemon = {
+        ...pokemon,
+        lvl: Math.max(pokemon.lvl || 1, newLevel), // Set level to at least evolution level
+        specie: newSpecie,
+      };
+      onUpdatePokemon(index, newPokemon, isBox);
+      
+      toast.success(t('pokemon.evolved'), {
+        description: `${oldName} → ${newName}`,
+      });
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header */}
@@ -263,6 +283,7 @@ export function PokemonEditor({
                   onUpdateTargetMode={onUpdateTargetMode}
                   onToggleFavorite={handleToggleFavorite}
                   onToggleShiny={handleToggleShiny}
+                  onEvolveTo={handleEvolveTo}
                   t={t}
                 />
               ))}
@@ -395,6 +416,7 @@ interface PokemonCardProps {
   onUpdateTargetMode: (index: number, targetMode: TargetMode, isBox: boolean) => void;
   onToggleFavorite: (index: number, isBox: boolean) => void;
   onToggleShiny: (index: number, isBox: boolean) => void;
+  onEvolveTo: (index: number, newSpecie: PokemonSpecie, newLevel: number, isBox: boolean) => void;
   t: (key: string) => string;
 }
 
@@ -408,10 +430,20 @@ function PokemonCard({
   onUpdateTargetMode,
   onToggleFavorite,
   onToggleShiny,
+  onEvolveTo,
   t,
 }: PokemonCardProps) {
   const specie = pokemon.specie;
   const color = specie.color || '#666';
+  
+  // Get full evolution chain for this Pokemon
+  const evolutionChain = useMemo(() => getFullEvolutionChain(specie), [specie]);
+  
+  // Find current position in evolution chain
+  const currentIndex = evolutionChain.findIndex(e => e.specie.id === specie.id);
+  
+  // Get available evolutions (forms after current)
+  const availableEvolutions = evolutionChain.slice(currentIndex + 1);
 
   return (
     <div
@@ -521,6 +553,34 @@ function PokemonCard({
         />
       </div>
 
+      {/* Evolution shortcuts */}
+      {availableEvolutions.length > 0 && (
+        <div className="pt-2 mb-2 border-t border-white/5">
+          <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+            <ArrowUp className="w-3 h-3" />
+            {t('pokemon.evolveShortcuts')}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {availableEvolutions.map((evo) => (
+              <Button
+                key={evo.specie.id}
+                size="sm"
+                variant="outline"
+                onClick={() => onEvolveTo(index, evo.specie, evo.level, isBox)}
+                className="h-7 text-xs border-white/10 hover:bg-primary/20 hover:border-primary/50 gap-1"
+                style={{
+                  background: `linear-gradient(135deg, ${evo.specie.color}10, transparent)`
+                }}
+              >
+                <ArrowRight className="w-3 h-3" />
+                <span className="capitalize">{getPokemonDisplayName(evo.specie, langIndex)}</span>
+                <span className="text-[10px] text-muted-foreground">Lv.{evo.level}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Target Mode */}
       <div className="flex items-center justify-between pt-2 border-t border-white/5">
         <span className="text-xs text-muted-foreground">{t('pokemon.targetMode')}</span>
@@ -541,12 +601,11 @@ function PokemonCard({
         </Select>
       </div>
 
-      {/* Evolution info */}
-      {specie.evolution && (
+      {/* Evolution info - only show if not already showing shortcuts */}
+      {specie.evolution && availableEvolutions.length === 0 && (
         <div className="pt-2 mt-2 border-t border-white/5">
           <p className="text-xs text-muted-foreground">
-            {t('pokemon.evolvesAt')} <span className="text-primary font-medium">{specie.evolution.level}</span>
-            {' → '}<span className="capitalize text-primary">{specie.evolution.pokemon}</span>
+            {t('pokemon.maxEvolution')} ✨
           </p>
         </div>
       )}

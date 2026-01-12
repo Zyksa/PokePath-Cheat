@@ -83,6 +83,8 @@ export const en = {
     selectVersion: 'Select version to add at level',
     recommended: 'Recommended',
     baseForm: 'Base form',
+    evolveShortcuts: 'Quick evolve',
+    maxEvolution: 'Max evolution reached',
   },
   shiny: {
     title: 'Shiny Manager',
@@ -261,6 +263,8 @@ export const fr = {
     selectVersion: 'Sélectionner la version au niveau',
     recommended: 'Recommandé',
     baseForm: 'Forme de base',
+    evolveShortcuts: 'Évolution rapide',
+    maxEvolution: 'Évolution maximale atteinte',
   },
   shiny: {
     title: 'Gestionnaire Shiny',

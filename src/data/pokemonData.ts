@@ -570,6 +570,592 @@ export const POKEMON_DATABASE: PokemonData[] = [
     color: "#d794de",
     abilityId: "transform",
     abilityNames: { en: "Transform", es: "Transform", fr: "Transform" }
+  },
+  
+  // ==========================================
+  // EVOLUTIONS - Stage 2 Pokemon
+  // ==========================================
+  
+  // Evolution from charmander (id: 0)
+  {
+    id: 100,
+    names: { en: "charmeleon", es: "charmeleon", fr: "reptincel", pt: "charmeleon", it: "charmeleon", de: "glutexo", ja: "リザード", ko: "리자드" },
+    color: "#ff8463",
+    abilityId: "burn",
+    abilityNames: { en: "Burn", es: "Quemadura", fr: "Brûlure" },
+    evolution: { level: 36, pokemon: "charizard" }
+  },
+  // Evolution from treecko (id: 1)
+  {
+    id: 101,
+    names: { en: "grovyle", es: "grovyle", fr: "massko", pt: "grovyle", it: "grovyle", de: "reptain", ja: "ジュプトル", ko: "나무돌이" },
+    color: "#b7d667",
+    abilityId: "ambusher",
+    abilityNames: { en: "Ambusher", es: "Acechador", fr: "Guetteur" },
+    evolution: { level: 36, pokemon: "sceptile" }
+  },
+  // Evolution from froakie (id: 2)
+  {
+    id: 102,
+    names: { en: "frogadier", es: "frogadier", fr: "croâporal", pt: "frogadier", it: "frogadier", de: "amphizel", ja: "ゲコガシラ", ko: "개굴반장" },
+    color: "#20adbc",
+    abilityId: "ninja",
+    abilityNames: { en: "Ninja", es: "Ninja", fr: "Ninja" },
+    evolution: { level: 36, pokemon: "greninja" }
+  },
+  // Evolution from natu (id: 4)
+  {
+    id: 103,
+    names: { en: "xatu", es: "xatu", fr: "xatu", pt: "xatu", it: "xatu", de: "xatu", ja: "ネイティオ", ko: "네이티오" },
+    color: "#9fcf6f",
+    abilityId: "frisk",
+    abilityNames: { en: "Frisk", es: "Cacheo", fr: "Fouille" }
+  },
+  // Evolution from spoink (id: 3)
+  {
+    id: 104,
+    names: { en: "grumpig", es: "grumpig", fr: "groret", pt: "grumpig", it: "grumpig", de: "groink", ja: "ブーピッグ", ko: "피그킹" },
+    color: "#aeb6bf",
+    abilityId: "frisk",
+    abilityNames: { en: "Frisk", es: "Cacheo", fr: "Fouille" }
+  },
+  // Evolution from voltorb (id: 5)
+  {
+    id: 105,
+    names: { en: "electrode", es: "electrode", fr: "électrode", pt: "electrode", it: "electrode", de: "lektrobal", ja: "マルマイン", ko: "붐볼" },
+    color: "#d63901",
+    abilityId: "stunMonoNerf",
+    abilityNames: { en: "Stun", es: "Aturdir", fr: "Étourdir" }
+  },
+  // Evolution from machop (id: 7)
+  {
+    id: 106,
+    names: { en: "machoke", es: "machoke", fr: "machopeur", pt: "machoke", it: "machoke", de: "maschock", ja: "ゴーリキー", ko: "근육몬" },
+    color: "#8cacb5",
+    abilityId: "armorBreak",
+    abilityNames: { en: "Armor Break", es: "Rompearmadura", fr: "Brise-Armure" },
+    evolution: { level: 40, pokemon: "machamp" }
+  },
+  // Evolution from mankey (id: 8)
+  {
+    id: 107,
+    names: { en: "primeape", es: "primeape", fr: "colossinge", pt: "primeape", it: "primeape", de: "rasaff", ja: "オコリザル", ko: "성원숭" },
+    color: "#fff79c",
+    abilityId: "armorBreak",
+    abilityNames: { en: "Armor Break", es: "Rompearmadura", fr: "Brise-Armure" }
+  },
+  // Evolution from chimchar (id: 9)
+  {
+    id: 108,
+    names: { en: "monferno", es: "monferno", fr: "chimpenfeu", pt: "monferno", it: "monferno", de: "panpyro", ja: "モウカザル", ko: "파이숭이" },
+    color: "#df771e",
+    abilityId: "burn",
+    abilityNames: { en: "Burn", es: "Quemadura", fr: "Brûlure" },
+    evolution: { level: 36, pokemon: "infernape" }
+  },
+  // Evolution from yamask (id: 10)
+  {
+    id: 109,
+    names: { en: "cofagrigus", es: "cofagrigus", fr: "tutankafer", pt: "cofagrigus", it: "cofagrigus", de: "echnatoll", ja: "デスカーン", ko: "데스니칸" },
+    color: "#708088",
+    abilityId: "curse",
+    abilityNames: { en: "Curse", es: "Maldición", fr: "Malédiction" }
+  },
+  // Evolution from meowth (id: 18)
+  {
+    id: 110,
+    names: { en: "persian", es: "persian", fr: "persian", pt: "persian", it: "persian", de: "snobilikat", ja: "ペルシアン", ko: "페르시온" },
+    color: "#d6bd62",
+    abilityId: "greed",
+    abilityNames: { en: "Greed", es: "Codicia", fr: "Avidité" }
+  },
+  // Evolution from tangela (id: 20)
+  {
+    id: 111,
+    names: { en: "tangrowth", es: "tangrowth", fr: "bouldeneu", pt: "tangrowth", it: "tangrowth", de: "tangoloss", ja: "モジャンボ", ko: "덩쿠림보" },
+    color: "#6285ac",
+    abilityId: "slow",
+    abilityNames: { en: "Slow", es: "Ralentizar", fr: "Ralentir" }
+  },
+  // Evolution from chikorita (id: 21)
+  {
+    id: 112,
+    names: { en: "bayleef", es: "bayleef", fr: "macronium", pt: "bayleef", it: "bayleef", de: "lorblatt", ja: "ベイリーフ", ko: "베이리프" },
+    color: "#d7efa6",
+    abilityId: "heal",
+    abilityNames: { en: "Heal", es: "Curación", fr: "Soin" },
+    evolution: { level: 32, pokemon: "meganium" }
+  },
+  // Evolution from spinarak (id: 25)
+  {
+    id: 113,
+    names: { en: "ariados", es: "ariados", fr: "migalos", pt: "ariados", it: "ariados", de: "ariados", ja: "アリアドス", ko: "아리아도스" },
+    color: "#9fce6f",
+    abilityId: "poison",
+    abilityNames: { en: "Poison", es: "Veneno", fr: "Poison" }
+  },
+  // Evolution from shroomish (id: 27)
+  {
+    id: 114,
+    names: { en: "breloom", es: "breloom", fr: "chapignon", pt: "breloom", it: "breloom", de: "kapilz", ja: "キノガッサ", ko: "버섯모" },
+    color: "#fee79f",
+    abilityId: "heal",
+    abilityNames: { en: "Heal", es: "Curación", fr: "Soin" }
+  },
+  // Evolution from barboach (id: 28)
+  {
+    id: 115,
+    names: { en: "whiscash", es: "whiscash", fr: "barbicha", pt: "whiscash", it: "whiscash", de: "welsar", ja: "ナマズン", ko: "메깅" },
+    color: "#1f9ee7",
+    abilityId: "slow",
+    abilityNames: { en: "Slow", es: "Ralentizar", fr: "Ralentir" }
+  },
+  // Evolution from remoraid (id: 30)
+  {
+    id: 116,
+    names: { en: "octillery", es: "octillery", fr: "octillery", pt: "octillery", it: "octillery", de: "octillery", ja: "オクタン", ko: "대포무노" },
+    color: "#afb7bf",
+    abilityId: "splash",
+    abilityNames: { en: "Splash", es: "Splash", fr: "Éclaboussure" }
+  },
+  // Evolution from clauncher (id: 29)
+  {
+    id: 117,
+    names: { en: "clawitzer", es: "clawitzer", fr: "gamblast", pt: "clawitzer", it: "clawitzer", de: "wummer", ja: "ブロスター", ko: "블로스터" },
+    color: "#81e1ff",
+    abilityId: "superCritical",
+    abilityNames: { en: "Super Critical", es: "Super Crítico", fr: "Super Critique" }
+  },
+  // Evolution from seel (id: 34)
+  {
+    id: 118,
+    names: { en: "dewgong", es: "dewgong", fr: "lamantine", pt: "dewgong", it: "dewgong", de: "jugong", ja: "ジュゴン", ko: "쥬레곤" },
+    color: "#d7dfde",
+    abilityId: "stunMono",
+    abilityNames: { en: "Stun", es: "Aturdir", fr: "Étourdir" }
+  },
+  // Evolution from murkrow (id: 36)
+  {
+    id: 119,
+    names: { en: "honchkrow", es: "honchkrow", fr: "corboss", pt: "honchkrow", it: "honchkrow", de: "kramshef", ja: "ドンカラス", ko: "돈크로우" },
+    color: "#deb600",
+    abilityId: "frisk",
+    abilityNames: { en: "Frisk", es: "Cacheo", fr: "Fouille" }
+  },
+  // Evolution from staryu (id: 32)
+  {
+    id: 120,
+    names: { en: "starmie", es: "starmie", fr: "staross", pt: "starmie", it: "starmie", de: "starmie", ja: "スターミー", ko: "아쿠스타" },
+    color: "#de7318",
+    abilityId: "swimmer",
+    abilityNames: { en: "Swift Swim", es: "Nado Rápido", fr: "Nage Rapide" }
+  },
+  // Evolution from psyduck (id: 35)
+  {
+    id: 121,
+    names: { en: "golduck", es: "golduck", fr: "akwakwak", pt: "golduck", it: "golduck", de: "entoron", ja: "ゴルダック", ko: "골덕" },
+    color: "#dfb501",
+    abilityId: "swimmer",
+    abilityNames: { en: "Swift Swim", es: "Nado Rápido", fr: "Nage Rapide" }
+  },
+  // Evolution from gulpin (id: 14)
+  {
+    id: 122,
+    names: { en: "swalot", es: "swalot", fr: "avaltout", pt: "swalot", it: "swalot", de: "schlukwech", ja: "マルノーム", ko: "꿀꺽몬" },
+    color: "#8fff67",
+    abilityId: "poison",
+    abilityNames: { en: "Poison", es: "Veneno", fr: "Poison" }
+  },
+  // Evolution from ferroseed (id: 49)
+  {
+    id: 123,
+    names: { en: "ferrothorn", es: "ferrothorn", fr: "noacier", pt: "ferrothorn", it: "ferrothorn", de: "tentantel", ja: "ナットレイ", ko: "너트령" },
+    color: "#5eb727",
+    abilityId: "slow",
+    abilityNames: { en: "Slow", es: "Ralentizar", fr: "Ralentir" }
+  },
+  // Evolution from sunkern (id: 19)
+  {
+    id: 124,
+    names: { en: "sunflora", es: "sunflora", fr: "héliatronc", pt: "sunflora", it: "sunflora", de: "sonnflora", ja: "キマワリ", ko: "해루미" },
+    color: "#fff700",
+    abilityId: "powerAura",
+    abilityNames: { en: "Power Aura", es: "Aura de Poder", fr: "Aura de Puissance" }
+  },
+  // Evolution from aron (id: 44)
+  {
+    id: 125,
+    names: { en: "lairon", es: "lairon", fr: "galegon", pt: "lairon", it: "lairon", de: "stollrak", ja: "コドラ", ko: "코도라" },
+    color: "#afb6bf",
+    abilityId: "vigilant",
+    abilityNames: { en: "Vigilant", es: "Vigilante", fr: "Vigilant" },
+    evolution: { level: 42, pokemon: "aggron" }
+  },
+  // Evolution from cubone (id: 45)
+  {
+    id: 126,
+    names: { en: "marowak", es: "marowak", fr: "ossatueur", pt: "marowak", it: "marowak", de: "knogga", ja: "ガラガラ", ko: "텅구리" },
+    color: "#ac6218",
+    abilityId: "ninja",
+    abilityNames: { en: "Ninja", es: "Ninja", fr: "Ninja" }
+  },
+  // Evolution from binacle (id: 47)
+  {
+    id: 127,
+    names: { en: "barbaracle", es: "barbaracle", fr: "golgopathe", pt: "barbaracle", it: "barbaracle", de: "thanathora", ja: "ガメノデス", ko: "거북손데스" },
+    color: "#9b7547",
+    abilityId: "doubleShot",
+    abilityNames: { en: "Double Shot", es: "Disparo Doble", fr: "Tir Double" }
+  },
+  // Evolution from oshawott (id: 31)
+  {
+    id: 128,
+    names: { en: "dewott", es: "dewott", fr: "mateloutre", pt: "dewott", it: "dewott", de: "zwottronin", ja: "フタチマル", ko: "쌍검자비" },
+    color: "#70d8f0",
+    abilityId: "focus",
+    abilityNames: { en: "Focus", es: "Focus", fr: "Concentration" },
+    evolution: { level: 36, pokemon: "samurott" }
+  },
+  // Evolution from sandshrew (id: 37)
+  {
+    id: 129,
+    names: { en: "sandslash", es: "sandslash", fr: "sablaireau", pt: "sandslash", it: "sandslash", de: "sandamer", ja: "サンドパン", ko: "고지" },
+    color: "#dfb500",
+    abilityId: "doubleShot",
+    abilityNames: { en: "Double Shot", es: "Disparo Doble", fr: "Tir Double" }
+  },
+  // Evolution from sneasel (id: 40)
+  {
+    id: 130,
+    names: { en: "weavile", es: "weavile", fr: "dimoret", pt: "weavile", it: "weavile", de: "snibunna", ja: "マニューラ", ko: "포푸니라" },
+    color: "#4f5f96",
+    abilityId: "superCritical",
+    abilityNames: { en: "Super Critical", es: "Super Crítico", fr: "Super Critique" }
+  },
+  // Evolution from trapinch (id: 38)
+  {
+    id: 131,
+    names: { en: "vibrava", es: "vibrava", fr: "vibraninf", pt: "vibrava", it: "vibrava", de: "vibrava", ja: "ビブラーバ", ko: "비브라바" },
+    color: "#ff9746",
+    abilityId: "vigilant",
+    abilityNames: { en: "Vigilant", es: "Vigilante", fr: "Vigilant" },
+    evolution: { level: 45, pokemon: "flygon" }
+  },
+  // Evolution from pidgey (id: 46)
+  {
+    id: 132,
+    names: { en: "pidgeotto", es: "pidgeotto", fr: "roucoups", pt: "pidgeotto", it: "pidgeotto", de: "tauboga", ja: "ピジョン", ko: "피죤" },
+    color: "#e63963",
+    abilityId: "vigilant",
+    abilityNames: { en: "Vigilant", es: "Vigilante", fr: "Vigilant" },
+    evolution: { level: 36, pokemon: "pidgeot" }
+  },
+  // Evolution from noibat (id: 39)
+  {
+    id: 133,
+    names: { en: "noivern", es: "noivern", fr: "bruyverne", pt: "noivern", it: "noivern", de: "uhafer", ja: "オンバーン", ko: "음번" },
+    color: "#863f86",
+    abilityId: "focus",
+    abilityNames: { en: "Focus", es: "Focus", fr: "Concentration" }
+  },
+  // Evolution from riolu (id: 11)
+  {
+    id: 134,
+    names: { en: "lucario", es: "lucario", fr: "lucario", pt: "lucario", it: "lucario", de: "lucario", ja: "ルカリオ", ko: "루카리오" },
+    color: "#1e9ee6",
+    abilityId: "splash",
+    abilityNames: { en: "Splash", es: "Splash", fr: "Éclaboussure" }
+  },
+  // Evolution from mareep (id: 13)
+  {
+    id: 135,
+    names: { en: "flaaffy", es: "flaaffy", fr: "lainergie", pt: "flaaffy", it: "flaaffy", de: "waaty", ja: "モココ", ko: "보송송" },
+    color: "#ffe69e",
+    abilityId: "stunArea",
+    abilityNames: { en: "Stun", es: "Aturdir", fr: "Étourdir" },
+    evolution: { level: 30, pokemon: "ampharos" }
+  },
+  // Evolution from surskit (id: 48)
+  {
+    id: 136,
+    names: { en: "masquerain", es: "masquerain", fr: "maskadra", pt: "masquerain", it: "masquerain", de: "maskeregen", ja: "アメモース", ko: "비나방" },
+    color: "#1e9ee7",
+    abilityId: "swimmer",
+    abilityNames: { en: "Swift Swim", es: "Nado Rápido", fr: "Nage Rapide" }
+  },
+  // Evolution from cottonee (id: 23)
+  {
+    id: 137,
+    names: { en: "whimsicott", es: "whimsicott", fr: "farfaduvet", pt: "whimsicott", it: "whimsicott", de: "elfun", ja: "エルフーン", ko: "엘풍" },
+    color: "#bee293",
+    abilityId: "heal",
+    abilityNames: { en: "Heal", es: "Curación", fr: "Soin" }
+  },
+  // Evolution from petilil (id: 24)
+  {
+    id: 138,
+    names: { en: "lilligant", es: "lilligant", fr: "fragilady", pt: "lilligant", it: "lilligant", de: "dressella", ja: "ドレディア", ko: "드레디어" },
+    color: "#aed162",
+    abilityId: "doubleShot",
+    abilityNames: { en: "Double Shot", es: "Disparo Doble", fr: "Tir Double" }
+  },
+  // Evolution from hoppip (id: 22)
+  {
+    id: 139,
+    names: { en: "skiploom", es: "skiploom", fr: "floravol", pt: "skiploom", it: "skiploom", de: "hubelupf", ja: "ポポッコ", ko: "두코" },
+    color: "#e73f67",
+    abilityId: "ambusher",
+    abilityNames: { en: "Ambusher", es: "Acechador", fr: "Guetteur" },
+    evolution: { level: 27, pokemon: "jumpluff" }
+  },
+  // Evolution from drilbur (id: 41)
+  {
+    id: 140,
+    names: { en: "excadrill", es: "excadrill", fr: "minotaupe", pt: "excadrill", it: "excadrill", de: "stalobor", ja: "ドリュウズ", ko: "몰드류" },
+    color: "#8d7b6d",
+    abilityId: "armorBreak",
+    abilityNames: { en: "Armor Break", es: "Rompearmadura", fr: "Brise-Armure" }
+  },
+  // Evolution from ekans (id: 6)
+  {
+    id: 141,
+    names: { en: "arbok", es: "arbok", fr: "arbok", pt: "arbok", it: "arbok", de: "arbok", ja: "アーボック", ko: "아보크" },
+    color: "#b594df",
+    abilityId: "poison",
+    abilityNames: { en: "Poison", es: "Veneno", fr: "Poison" }
+  },
+  // Evolution from ralts (id: 55)
+  {
+    id: 142,
+    names: { en: "kirlia", es: "kirlia", fr: "kirlia", pt: "kirlia", it: "kirlia", de: "kirlia", ja: "キルリア", ko: "킬리아" },
+    color: "#5ec636",
+    abilityId: "synchronySplash",
+    abilityNames: { en: "Synchrony", es: "Sincronía", fr: "Synchronisation" },
+    evolution: { level: 30, pokemon: "gardevoir" }
+  },
+  // Evolution from koffing (id: 56)
+  {
+    id: 143,
+    names: { en: "weezing", es: "weezing", fr: "smogogo", pt: "weezing", it: "weezing", de: "smogmog", ja: "マタドガス", ko: "또도가스" },
+    color: "#b595df",
+    abilityId: "poison",
+    abilityNames: { en: "Poison", es: "Veneno", fr: "Poison" }
+  },
+  // Evolution from omanyte (id: 58)
+  {
+    id: 144,
+    names: { en: "omastar", es: "omastar", fr: "amonistar", pt: "omastar", it: "omastar", de: "amoroso", ja: "オムスター", ko: "암스타" },
+    color: "#8cdffe",
+    abilityId: "swimmer",
+    abilityNames: { en: "Swift Swim", es: "Nado Rápido", fr: "Nage Rapide" }
+  },
+  // Evolution from kabuto (id: 59)
+  {
+    id: 145,
+    names: { en: "kabutops", es: "kabutops", fr: "kabutops", pt: "kabutops", it: "kabutops", de: "kabutops", ja: "カブトプス", ko: "투구푸스" },
+    color: "#de7318",
+    abilityId: "armorBreak",
+    abilityNames: { en: "Armor Break", es: "Rompearmadura", fr: "Brise-Armure" }
+  },
+  // Evolution from clefairy (id: 62)
+  {
+    id: 146,
+    names: { en: "clefable", es: "clefable", fr: "mélodelfe", pt: "clefable", it: "clefable", de: "pixi", ja: "ピクシー", ko: "픽시" },
+    color: "#ffc7d7",
+    abilityId: "star",
+    abilityNames: { en: "star", es: "estrella", fr: "étoile" }
+  },
+  // Evolution from anorith (id: 63)
+  {
+    id: 147,
+    names: { en: "armaldo", es: "armaldo", fr: "armaldo", pt: "armaldo", it: "armaldo", de: "armaldo", ja: "アーマルド", ko: "아말도" },
+    color: "#47676f",
+    abilityId: "armaldo",
+    abilityNames: { en: "Critical Ricochet", es: "Rebote Critico", fr: "Ricochet critique" }
+  },
+  // Evolution from lileep (id: 64)
+  {
+    id: 148,
+    names: { en: "cradily", es: "cradily", fr: "vacilys", pt: "cradily", it: "cradily", de: "wielie", ja: "ユレイドル", ko: "릴리요" },
+    color: "#c697de",
+    abilityId: "cradily",
+    abilityNames: { en: "Fossil Projectile", es: "Proyectil Fósil", fr: "Projectile Fossile" }
+  },
+  // Evolution from shieldon (id: 65)
+  {
+    id: 149,
+    names: { en: "bastiodon", es: "bastiodon", fr: "bastiodon", pt: "bastiodon", it: "bastiodon", de: "bollterus", ja: "トリデプス", ko: "바리톱스" },
+    color: "#efbe36",
+    abilityId: "bastiodon",
+    abilityNames: { en: "Fossil Speed", es: "Velocidad Fósil", fr: "Vitesse Fossile" }
+  },
+  // Evolution from cranidos (id: 66)
+  {
+    id: 150,
+    names: { en: "rampardos", es: "rampardos", fr: "charkos", pt: "rampardos", it: "rampardos", de: "rameidon", ja: "ラムパルド", ko: "램펄드" },
+    color: "#1f9fe7",
+    abilityId: "rampardos",
+    abilityNames: { en: "Rock Head", es: "Cabeza de Roca", fr: "Tête de Roc" }
+  },
+  // Evolution from starly (id: 67)
+  {
+    id: 151,
+    names: { en: "staravia", es: "staravia", fr: "étourvol", pt: "staravia", it: "staravia", de: "staravia", ja: "ムクバード", ko: "찌르버드" },
+    color: "#7e6f6e",
+    abilityId: "doubleShot",
+    abilityNames: { en: "Double Shot", es: "Disparo Doble", fr: "Tir Double" },
+    evolution: { level: 34, pokemon: "staraptor" }
+  },
+  // Evolution from abra (id: 68)
+  {
+    id: 152,
+    names: { en: "kadabra", es: "kadabra", fr: "kadabra", pt: "kadabra", it: "kadabra", de: "kadabra", ja: "ユンゲラー", ko: "윤겔라" },
+    color: "#deb500",
+    abilityId: "teleport",
+    abilityNames: { en: "teleport", es: "teleport", fr: "teleport" },
+    evolution: { level: 40, pokemon: "alakazam" }
+  },
+  // Evolution from gastly (id: 69)
+  {
+    id: 153,
+    names: { en: "haunter", es: "haunter", fr: "spectrum", pt: "haunter", it: "haunter", de: "alpollo", ja: "ゴースト", ko: "고우스트" },
+    color: "#b595de",
+    abilityId: "nightmare",
+    abilityNames: { en: "nightmare", es: "pesadilla", fr: "cauchemar" },
+    evolution: { level: 40, pokemon: "gengar" }
+  },
+
+  // ==========================================
+  // EVOLUTIONS - Stage 3 (Final) Pokemon
+  // ==========================================
+  
+  // Final evolution from charmeleon
+  {
+    id: 200,
+    names: { en: "charizard", es: "charizard", fr: "dracaufeu", pt: "charizard", it: "charizard", de: "glurak", ja: "リザードン", ko: "리자몽" },
+    color: "#ff8463",
+    abilityId: "burn",
+    abilityNames: { en: "Burn", es: "Quemadura", fr: "Brûlure" }
+  },
+  // Final evolution from grovyle
+  {
+    id: 201,
+    names: { en: "sceptile", es: "sceptile", fr: "jungko", pt: "sceptile", it: "sceptile", de: "gewaldro", ja: "ジュカイン", ko: "나무킹" },
+    color: "#b7d667",
+    abilityId: "ambusher",
+    abilityNames: { en: "Ambusher", es: "Acechador", fr: "Guetteur" }
+  },
+  // Final evolution from frogadier
+  {
+    id: 202,
+    names: { en: "greninja", es: "greninja", fr: "amphinobi", pt: "greninja", it: "greninja", de: "quajutsu", ja: "ゲッコウガ", ko: "개굴닌자" },
+    color: "#20adbc",
+    abilityId: "ninja",
+    abilityNames: { en: "Ninja", es: "Ninja", fr: "Ninja" }
+  },
+  // Final evolution from machoke
+  {
+    id: 203,
+    names: { en: "machamp", es: "machamp", fr: "mackogneur", pt: "machamp", it: "machamp", de: "machomei", ja: "カイリキー", ko: "괴력몬" },
+    color: "#8cacb5",
+    abilityId: "armorBreak",
+    abilityNames: { en: "Armor Break", es: "Rompearmadura", fr: "Brise-Armure" }
+  },
+  // Final evolution from monferno
+  {
+    id: 204,
+    names: { en: "infernape", es: "infernape", fr: "simiabraz", pt: "infernape", it: "infernape", de: "panferno", ja: "ゴウカザル", ko: "초염몽" },
+    color: "#df771e",
+    abilityId: "burn",
+    abilityNames: { en: "Burn", es: "Quemadura", fr: "Brûlure" }
+  },
+  // Final evolution from bayleef
+  {
+    id: 205,
+    names: { en: "meganium", es: "meganium", fr: "méganium", pt: "meganium", it: "meganium", de: "meganie", ja: "メガニウム", ko: "메가니움" },
+    color: "#d7efa6",
+    abilityId: "heal",
+    abilityNames: { en: "Heal", es: "Curación", fr: "Soin" }
+  },
+  // Final evolution from lairon
+  {
+    id: 206,
+    names: { en: "aggron", es: "aggron", fr: "galeking", pt: "aggron", it: "aggron", de: "stolloss", ja: "ボスゴドラ", ko: "보스로라" },
+    color: "#afb6bf",
+    abilityId: "vigilant",
+    abilityNames: { en: "Vigilant", es: "Vigilante", fr: "Vigilant" }
+  },
+  // Final evolution from dewott
+  {
+    id: 207,
+    names: { en: "samurott", es: "samurott", fr: "clamiral", pt: "samurott", it: "samurott", de: "admurai", ja: "ダイケンキ", ko: "대검귀" },
+    color: "#70d8f0",
+    abilityId: "focus",
+    abilityNames: { en: "Focus", es: "Focus", fr: "Concentration" }
+  },
+  // Final evolution from vibrava
+  {
+    id: 208,
+    names: { en: "flygon", es: "flygon", fr: "libégon", pt: "flygon", it: "flygon", de: "libelldra", ja: "フライゴン", ko: "플라이곤" },
+    color: "#ff9746",
+    abilityId: "vigilant",
+    abilityNames: { en: "Vigilant", es: "Vigilante", fr: "Vigilant" }
+  },
+  // Final evolution from pidgeotto
+  {
+    id: 209,
+    names: { en: "pidgeot", es: "pidgeot", fr: "roucarnage", pt: "pidgeot", it: "pidgeot", de: "tauboss", ja: "ピジョット", ko: "피죤투" },
+    color: "#e63963",
+    abilityId: "vigilant",
+    abilityNames: { en: "Vigilant", es: "Vigilante", fr: "Vigilant" }
+  },
+  // Final evolution from flaaffy
+  {
+    id: 210,
+    names: { en: "ampharos", es: "ampharos", fr: "pharamp", pt: "ampharos", it: "ampharos", de: "ampharos", ja: "デンリュウ", ko: "전룡" },
+    color: "#ffe69e",
+    abilityId: "stunArea",
+    abilityNames: { en: "Stun", es: "Aturdir", fr: "Étourdir" }
+  },
+  // Final evolution from skiploom
+  {
+    id: 211,
+    names: { en: "jumpluff", es: "jumpluff", fr: "cotovol", pt: "jumpluff", it: "jumpluff", de: "papungha", ja: "ワタッコ", ko: "솜솜코" },
+    color: "#e73f67",
+    abilityId: "ambusher",
+    abilityNames: { en: "Ambusher", es: "Acechador", fr: "Guetteur" }
+  },
+  // Final evolution from kirlia
+  {
+    id: 212,
+    names: { en: "gardevoir", es: "gardevoir", fr: "gardevoir", pt: "gardevoir", it: "gardevoir", de: "guardevoir", ja: "サーナイト", ko: "가디안" },
+    color: "#5ec636",
+    abilityId: "synchronySplash",
+    abilityNames: { en: "Synchrony", es: "Sincronía", fr: "Synchronisation" }
+  },
+  // Final evolution from staravia
+  {
+    id: 213,
+    names: { en: "staraptor", es: "staraptor", fr: "étouraptor", pt: "staraptor", it: "staraptor", de: "staraptor", ja: "ムクホーク", ko: "찌르호크" },
+    color: "#7e6f6e",
+    abilityId: "doubleShot",
+    abilityNames: { en: "Double Shot", es: "Disparo Doble", fr: "Tir Double" }
+  },
+  // Final evolution from kadabra
+  {
+    id: 214,
+    names: { en: "alakazam", es: "alakazam", fr: "alakazam", pt: "alakazam", it: "alakazam", de: "simsala", ja: "フーディン", ko: "후딘" },
+    color: "#deb500",
+    abilityId: "teleport",
+    abilityNames: { en: "teleport", es: "teleport", fr: "teleport" }
+  },
+  // Final evolution from haunter
+  {
+    id: 215,
+    names: { en: "gengar", es: "gengar", fr: "ectoplasma", pt: "gengar", it: "gengar", de: "gengar", ja: "ゲンガー", ko: "팬텀" },
+    color: "#b595de",
+    abilityId: "nightmare",
+    abilityNames: { en: "nightmare", es: "pesadilla", fr: "cauchemar" }
   }
 ];
 

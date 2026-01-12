@@ -281,3 +281,104 @@ export function getEvolutionForLevel(basePokemon: PokemonSpecie, level: number):
   
   return current;
 }
+
+// Helper to get the full evolution chain from any Pokemon (including pre-evolutions)
+export function getFullEvolutionChain(pokemon: PokemonSpecie): { specie: PokemonSpecie; level: number }[] {
+  const chain: { specie: PokemonSpecie; level: number }[] = [];
+  
+  // First, find the base form by checking if any Pokemon evolves INTO this one
+  let basePokemon = pokemon;
+  let foundPreEvo = true;
+  
+  while (foundPreEvo) {
+    foundPreEvo = false;
+    for (const dbPokemon of POKEMON_DATABASE) {
+      if (dbPokemon.evolution?.pokemon.toLowerCase() === basePokemon.name[0].toLowerCase()) {
+        // Found a pre-evolution
+        basePokemon = {
+          id: dbPokemon.id,
+          name: [
+            dbPokemon.names.en,
+            dbPokemon.names.es,
+            dbPokemon.names.fr,
+            dbPokemon.names.pt,
+            dbPokemon.names.it,
+            dbPokemon.names.de,
+            dbPokemon.names.ja,
+            dbPokemon.names.ko,
+          ],
+          color: dbPokemon.color,
+          ability: {
+            id: dbPokemon.abilityId,
+            name: [dbPokemon.abilityNames.en, dbPokemon.abilityNames.es, dbPokemon.abilityNames.fr],
+            description: ['', '', '']
+          },
+          evolution: dbPokemon.evolution,
+          attackType: 'single',
+          costScale: 'mid',
+          critical: { base: 0, scale: 0 },
+          power: { base: 10, scale: 1 },
+          range: { base: 100, inner: 0, scale: 0 },
+          rangeType: 'circle',
+          speed: { base: 1000, scale: 0 },
+          sprite: { base: '', frames: 1, hold: 15, image: '' },
+          tiles: [1],
+        };
+        foundPreEvo = true;
+        break;
+      }
+    }
+  }
+  
+  // Now build the chain from the base form forward
+  chain.push({ specie: basePokemon, level: 1 });
+  
+  let current = basePokemon;
+  while (current.evolution) {
+    const nextName = current.evolution.pokemon.toLowerCase();
+    const nextLevel = current.evolution.level;
+    
+    const dbPokemon = POKEMON_DATABASE.find(
+      p => p.names.en.toLowerCase() === nextName
+    );
+    
+    if (dbPokemon) {
+      const evolvedSpecie: PokemonSpecie = {
+        id: dbPokemon.id,
+        name: [
+          dbPokemon.names.en,
+          dbPokemon.names.es,
+          dbPokemon.names.fr,
+          dbPokemon.names.pt,
+          dbPokemon.names.it,
+          dbPokemon.names.de,
+          dbPokemon.names.ja,
+          dbPokemon.names.ko,
+        ],
+        color: dbPokemon.color,
+        ability: {
+          id: dbPokemon.abilityId,
+          name: [dbPokemon.abilityNames.en, dbPokemon.abilityNames.es, dbPokemon.abilityNames.fr],
+          description: ['', '', '']
+        },
+        evolution: dbPokemon.evolution,
+        attackType: 'single',
+        costScale: 'mid',
+        critical: { base: 0, scale: 0 },
+        power: { base: 10, scale: 1 },
+        range: { base: 100, inner: 0, scale: 0 },
+        rangeType: 'circle',
+        speed: { base: 1000, scale: 0 },
+        sprite: { base: '', frames: 1, hold: 15, image: '' },
+        tiles: [1],
+      };
+      
+      chain.push({ specie: evolvedSpecie, level: nextLevel });
+      current = evolvedSpecie;
+    } else {
+      break;
+    }
+  }
+  
+  return chain;
+}
