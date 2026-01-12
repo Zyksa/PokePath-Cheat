@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Swords, ArrowUp, Plus, Trash2, Heart, Search, Sparkles, Box, Users, Zap, Target, ArrowRight } from 'lucide-react';
+import { Swords, ArrowUp, Plus, Trash2, Heart, Search, Sparkles, Box, Users, Zap, Target, ArrowRight, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,14 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import type { SaveData, TeamPokemon, PokemonSpecie, TargetMode } from '@/types/save';
 import { getPokemonDisplayName, getAbilityName, getAbilityDescription, TARGET_MODES } from '@/types/save';
@@ -20,6 +28,7 @@ interface PokemonEditorProps {
   onUpdatePokemon: (index: number, pokemon: TeamPokemon, isBox: boolean) => void;
   onUpdateLevel: (index: number, level: number, isBox: boolean) => void;
   onMaxAllLevels: () => void;
+  onGiveAllPokemon: (shiny: boolean, level: number) => number | undefined;
   onAddPokemon: (specie: PokemonSpecie, toBox: boolean, shiny: boolean, level: number) => void;
   onRemovePokemon: (index: number, isBox: boolean) => void;
   onUpdateTargetMode: (index: number, targetMode: TargetMode, isBox: boolean) => void;
@@ -32,6 +41,7 @@ export function PokemonEditor({
   onUpdatePokemon,
   onUpdateLevel,
   onMaxAllLevels,
+  onGiveAllPokemon,
   onAddPokemon,
   onRemovePokemon,
   onUpdateTargetMode,
@@ -49,6 +59,9 @@ export function PokemonEditor({
     isOpen: boolean;
     pokemon: PokemonSpecie | null;
   }>({ isOpen: false, pokemon: null });
+  
+  // Give All confirmation modal
+  const [showGiveAllConfirm, setShowGiveAllConfirm] = useState(false);
   
   const langIndex = i18n.language === 'fr' ? 2 : 0;
   
@@ -117,12 +130,12 @@ export function PokemonEditor({
     });
   }, [availablePokemon, searchTerm, abilityFilter, langIndex]);
 
-  const handleAddPokemon = (specie: PokemonSpecie, toBox: boolean) => {
-    onAddPokemon(specie, toBox, addShiny, addLevel);
+  const handleAddPokemon = (specie: PokemonSpecie, toBox: boolean, shiny: boolean, level: number) => {
+    onAddPokemon(specie, toBox, shiny, level);
     const pokemonName = getPokemonDisplayName(specie, langIndex);
     const destination = toBox ? t('pokemon.boxPokemon') : t('pokemon.teamPokemon');
     toast.success(t('pokemon.pokemonAdded'), {
-      description: `${pokemonName} → ${destination}`,
+      description: `${pokemonName} (Lv.${level}) → ${destination}`,
     });
   };
 
@@ -221,6 +234,20 @@ export function PokemonEditor({
     }
   };
 
+  const handleGiveAll = () => {
+    setShowGiveAllConfirm(false);
+    const count = onGiveAllPokemon(false, 100);
+    if (count && count > 0) {
+      toast.success(t('pokemon.pokemonGiven'), {
+        description: `${count} Pokémon`,
+      });
+    } else {
+      toast.info(t('pokemon.pokemonGiven'), {
+        description: '0 Pokémon',
+      });
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header */}
@@ -235,13 +262,23 @@ export function PokemonEditor({
           </div>
         </div>
 
-        <Button
-          onClick={onMaxAllLevels}
-          className="btn-gradient gap-2"
-        >
-          <ArrowUp className="w-4 h-4" />
-          {t('pokemon.allMaxLevel')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setShowGiveAllConfirm(true)}
+            className="btn-gradient gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            {t('pokemon.giveAll')}
+          </Button>
+          <Button
+            onClick={onMaxAllLevels}
+            variant="outline"
+            className="border-white/10 hover:bg-white/5 gap-2"
+          >
+            <ArrowUp className="w-4 h-4" />
+            {t('pokemon.allMaxLevel')}
+          </Button>
+        </div>
       </div>
 
       {/* Sub-tabs for My Pokemon / Give Pokemon */}
@@ -401,6 +438,36 @@ export function PokemonEditor({
           onConfirm={handleAddPokemon}
         />
       )}
+
+      {/* Give All Confirmation Modal */}
+      <Dialog open={showGiveAllConfirm} onOpenChange={setShowGiveAllConfirm}>
+        <DialogContent className="sm:max-w-md bg-background/95 backdrop-blur-xl border-white/10">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-yellow-400" />
+              {t('pokemon.giveAllConfirmTitle')}
+            </DialogTitle>
+            <DialogDescription>
+              {t('pokemon.giveAllConfirmDesc')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowGiveAllConfirm(false)}
+              className="border-white/10"
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              onClick={handleGiveAll}
+              className="btn-gradient"
+            >
+              {t('common.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import type { SaveData, PlayerStats, PokemonSpecie, TeamPokemon, TargetMode } from '@/types/save';
 import { decodeSaveData, encodeSaveData } from '@/utils/saveUtils';
 import { calculateStars } from '@/types/save';
+import { POKEMON_DATABASE } from '@/data/pokemonData';
 
 export function useSaveEditor() {
   const [saveData, setSaveData] = useState<SaveData | null>(null);
@@ -179,6 +180,61 @@ export function useSaveEditor() {
     }
   }, [saveData]);
 
+  const giveAllPokemon = useCallback((shiny: boolean = false, level: number = 100) => {
+    if (!saveData) return;
+    
+    // Get existing Pokemon IDs to avoid duplicates
+    const existingIds = new Set([
+      ...(saveData.team || []).map(p => p.specie.id),
+      ...(saveData.box || []).map(p => p.specie.id),
+    ]);
+    
+    // Only add base forms (IDs < 100 = base Pokemon)
+    const basePokemon = POKEMON_DATABASE.filter(p => p.id < 100 && !existingIds.has(p.id));
+    
+    // Convert to TeamPokemon and add to box
+    const newPokemon: TeamPokemon[] = basePokemon.map(dbPokemon => ({
+      favorite: false,
+      lvl: Math.max(1, Math.min(100, level)),
+      specie: {
+        id: dbPokemon.id,
+        name: [
+          dbPokemon.names.en,
+          dbPokemon.names.es,
+          dbPokemon.names.fr,
+          dbPokemon.names.pt,
+          dbPokemon.names.it,
+          dbPokemon.names.de,
+          dbPokemon.names.ja,
+          dbPokemon.names.ko,
+        ],
+        color: dbPokemon.color,
+        ability: {
+          id: dbPokemon.abilityId,
+          name: [dbPokemon.abilityNames.en, dbPokemon.abilityNames.es, dbPokemon.abilityNames.fr],
+          description: ['', '', '']
+        },
+        evolution: dbPokemon.evolution,
+        attackType: 'single' as const,
+        costScale: 'mid' as const,
+        critical: { base: 0, scale: 0 },
+        power: { base: 10, scale: 1 },
+        range: { base: 100, inner: 0, scale: 0 },
+        rangeType: 'circle' as const,
+        speed: { base: 1000, scale: 0 },
+        sprite: { base: '', frames: 1, hold: 15, image: '' },
+        tiles: [1],
+      } as PokemonSpecie,
+      targetMode: 'first',
+      shiny,
+    }));
+    
+    const newBox = [...(saveData.box || []), ...newPokemon];
+    setSaveData({ ...saveData, box: newBox });
+    
+    return newPokemon.length;
+  }, [saveData]);
+
   const removePokemon = useCallback((pokemonIndex: number, isBox: boolean = false) => {
     if (!saveData) return;
     
@@ -314,6 +370,7 @@ export function useSaveEditor() {
     updatePokemonLevel,
     maxAllLevels,
     addPokemon,
+    giveAllPokemon,
     removePokemon,
     updatePokemonTargetMode,
     togglePokemonFavorite,

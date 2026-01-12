@@ -96,8 +96,10 @@ export function EvolutionModal({
     return chain;
   }, [basePokemon]);
 
-  const handleSelect = (specie: PokemonSpecie, toBox: boolean) => {
-    onConfirm(specie, toBox, selectedShiny, level);
+  const handleSelect = (specie: PokemonSpecie, toBox: boolean, minLevel: number) => {
+    // Auto-adjust level to at least the evolution level
+    const finalLevel = Math.max(level, minLevel);
+    onConfirm(specie, toBox, selectedShiny, finalLevel);
     onClose();
   };
 
@@ -165,7 +167,8 @@ export function EvolutionModal({
             </p>
             
             {evolutionChain.map((evo) => {
-              const canSelect = level >= evo.level || evo.level === 1;
+              // All evolutions are now selectable
+              const needsLevelAdjust = level < evo.level && evo.level > 1;
               const isRecommended = evolutionChain.reduce((best, curr) => {
                 if (level >= curr.level) return curr;
                 return best;
@@ -174,7 +177,7 @@ export function EvolutionModal({
               return (
                 <div
                   key={evo.specie.id}
-                  className={`section-card p-3 ${!canSelect ? 'opacity-40' : ''}`}
+                  className="section-card p-3"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div
@@ -190,9 +193,14 @@ export function EvolutionModal({
                         <p className="font-medium capitalize truncate">
                           {getPokemonDisplayName(evo.specie, langIndex)}
                         </p>
-                        {isRecommended && canSelect && (
+                        {isRecommended && (
                           <span className="text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded">
                             {t('pokemon.recommended')}
+                          </span>
+                        )}
+                        {needsLevelAdjust && (
+                          <span className="text-[10px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded">
+                            → Lv.{evo.level}
                           </span>
                         )}
                       </div>
@@ -205,8 +213,7 @@ export function EvolutionModal({
                   <div className="flex gap-2">
                     <Button
                       size="sm"
-                      onClick={() => handleSelect(evo.specie, false)}
-                      disabled={!canSelect}
+                      onClick={() => handleSelect(evo.specie, false, evo.level)}
                       className="flex-1 h-8 text-xs bg-blue-600 hover:bg-blue-500 gap-1"
                     >
                       <Users className="w-3 h-3" />
@@ -214,8 +221,7 @@ export function EvolutionModal({
                     </Button>
                     <Button
                       size="sm"
-                      onClick={() => handleSelect(evo.specie, true)}
-                      disabled={!canSelect}
+                      onClick={() => handleSelect(evo.specie, true, evo.level)}
                       variant="outline"
                       className="flex-1 h-8 text-xs border-white/10 hover:bg-white/5 gap-1"
                     >

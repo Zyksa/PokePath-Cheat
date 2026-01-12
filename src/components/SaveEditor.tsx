@@ -66,9 +66,8 @@ export function SaveEditor({ editor }: SaveEditorProps) {
           </Button>
           <Button
             onClick={handleCopy}
-            variant="outline"
-            className={`border-white/10 gap-2 transition-colors ${
-              copied ? 'bg-green-500/20 border-green-500/50 text-green-400' : 'hover:bg-white/5'
+            className={`gap-2 transition-colors ${
+              copied ? 'bg-green-500 hover:bg-green-400 text-white' : 'btn-gradient'
             }`}
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -155,6 +154,7 @@ export function SaveEditor({ editor }: SaveEditorProps) {
             onUpdatePokemon={editor.updatePokemon}
             onUpdateLevel={editor.updatePokemonLevel}
             onMaxAllLevels={editor.maxAllLevels}
+            onGiveAllPokemon={editor.giveAllPokemon}
             onAddPokemon={editor.addPokemon}
             onRemovePokemon={editor.removePokemon}
             onUpdateTargetMode={editor.updatePokemonTargetMode}

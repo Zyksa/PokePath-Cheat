@@ -14,6 +14,8 @@ export const en = {
     success: 'Save loaded successfully!',
     error: 'Error decoding save file',
     invalidFormat: 'Invalid save format',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
   },
   tabs: {
     general: 'General',
@@ -85,6 +87,11 @@ export const en = {
     baseForm: 'Base form',
     evolveShortcuts: 'Quick evolve',
     maxEvolution: 'Max evolution reached',
+    giveAll: 'Give All',
+    giveAllDesc: 'Add all missing Pokémon to your box',
+    giveAllConfirmTitle: 'Give All Pokémon?',
+    giveAllConfirmDesc: 'This will add all missing base Pokémon to your box at level 100. Are you sure?',
+    pokemonGiven: 'Pokémon added to box',
   },
   shiny: {
     title: 'Shiny Manager',
@@ -194,6 +201,8 @@ export const fr = {
     success: 'Sauvegarde chargée avec succès !',
     error: 'Erreur lors du décodage de la sauvegarde',
     invalidFormat: 'Format de sauvegarde invalide',
+    cancel: 'Annuler',
+    confirm: 'Confirmer',
   },
   tabs: {
     general: 'Général',
@@ -265,6 +274,11 @@ export const fr = {
     baseForm: 'Forme de base',
     evolveShortcuts: 'Évolution rapide',
     maxEvolution: 'Évolution maximale atteinte',
+    giveAll: 'Tout donner',
+    giveAllDesc: 'Ajouter tous les Pokémon manquants dans la boîte',
+    giveAllConfirmTitle: 'Donner tous les Pokémon ?',
+    giveAllConfirmDesc: 'Cela ajoutera tous les Pokémon de base manquants dans votre boîte au niveau 100. Êtes-vous sûr ?',
+    pokemonGiven: 'Pokémon ajoutés dans la boîte',
   },
   shiny: {
     title: 'Gestionnaire Shiny',
