@@ -1,0 +1,593 @@
+import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Swords, ArrowUp, Plus, Trash2, Heart, Search, Sparkles, Box, Users, Zap, Target } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import type { SaveData, TeamPokemon, PokemonSpecie, TargetMode } from '@/types/save';
+import { getPokemonDisplayName, getAbilityName, getAbilityDescription, TARGET_MODES } from '@/types/save';
+import { POKEMON_DATABASE } from '@/data/pokemonData';
+
+interface PokemonEditorProps {
+  saveData: SaveData;
+  onUpdateLevel: (index: number, level: number, isBox: boolean) => void;
+  onMaxAllLevels: () => void;
+  onAddPokemon: (specie: PokemonSpecie, toBox: boolean, shiny: boolean, level: number) => void;
+  onRemovePokemon: (index: number, isBox: boolean) => void;
+  onUpdateTargetMode: (index: number, targetMode: TargetMode, isBox: boolean) => void;
+  onToggleFavorite: (index: number, isBox: boolean) => void;
+  onToggleShiny: (index: number, isBox: boolean) => void;
+}
+
+export function PokemonEditor({
+  saveData,
+  onUpdateLevel,
+  onMaxAllLevels,
+  onAddPokemon,
+  onRemovePokemon,
+  onUpdateTargetMode,
+  onToggleFavorite,
+  onToggleShiny,
+}: PokemonEditorProps) {
+  const { t, i18n } = useTranslation();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [abilityFilter, setAbilityFilter] = useState<string>('all');
+  const [addShiny, setAddShiny] = useState(false);
+  const [addLevel, setAddLevel] = useState(1);
+  
+  const langIndex = i18n.language === 'fr' ? 2 : 0;
+  
+  // Collect all Pokemon from team and box
+  const allPokemon: { pokemon: TeamPokemon; index: number; isBox: boolean }[] = useMemo(() => [
+    ...(saveData.team || []).map((p, i) => ({ pokemon: p, index: i, isBox: false })),
+    ...(saveData.box || []).map((p, i) => ({ pokemon: p, index: i, isBox: true })),
+  ], [saveData.team, saveData.box]);
+
+  // Get all available Pokemon from shop eggList or fallback to database
+  const availablePokemon = useMemo(() => {
+    // Use eggList if available and has data
+    if (saveData.shop?.eggList && saveData.shop.eggList.length > 0) {
+      return saveData.shop.eggList;
+    }
+    // Fallback: Convert database to PokemonSpecie format
+    return POKEMON_DATABASE.map(dbPokemon => ({
+      id: dbPokemon.id,
+      name: [
+        dbPokemon.names.en,
+        dbPokemon.names.es,
+        dbPokemon.names.fr,
+        dbPokemon.names.pt,
+        dbPokemon.names.it,
+        dbPokemon.names.de,
+        dbPokemon.names.ja,
+        dbPokemon.names.ko,
+      ],
+      color: dbPokemon.color,
+      ability: {
+        id: dbPokemon.abilityId,
+        name: [dbPokemon.abilityNames.en, dbPokemon.abilityNames.es, dbPokemon.abilityNames.fr],
+        description: ['', '', ''] // No descriptions in database
+      },
+      evolution: dbPokemon.evolution,
+      attackType: 'single' as const,
+      costScale: 'mid' as const,
+      critical: { base: 0, scale: 0 },
+      power: { base: 10, scale: 1 },
+      range: { base: 100, inner: 0, scale: 0 },
+      rangeType: 'circle' as const,
+      speed: { base: 1000, scale: 0 },
+      sprite: { base: '', frames: 1, hold: 15, image: '' },
+      tiles: [1],
+    })) as PokemonSpecie[];
+  }, [saveData.shop]);
+
+  // Get unique abilities for filter
+  const uniqueAbilities = useMemo(() => {
+    const abilities = new Set<string>();
+    availablePokemon.forEach(p => {
+      if (p.ability?.id) {
+        abilities.add(p.ability.id);
+      }
+    });
+    return Array.from(abilities).sort();
+  }, [availablePokemon]);
+
+  // Filter available Pokemon based on search and ability
+  const filteredAvailable = useMemo(() => {
+    return availablePokemon.filter(pokemon => {
+      const name = getPokemonDisplayName(pokemon, langIndex).toLowerCase();
+      const matchesSearch = name.includes(searchTerm.toLowerCase());
+      const matchesAbility = abilityFilter === 'all' || pokemon.ability?.id === abilityFilter;
+      return matchesSearch && matchesAbility;
+    });
+  }, [availablePokemon, searchTerm, abilityFilter, langIndex]);
+
+  const handleAddPokemon = (specie: PokemonSpecie, toBox: boolean) => {
+    onAddPokemon(specie, toBox, addShiny, addLevel);
+  };
+
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+            <Swords className="w-6 h-6 text-blue-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">{t('pokemon.title')}</h2>
+            <p className="text-sm text-muted-foreground">{t('pokemon.description')}</p>
+          </div>
+        </div>
+
+        <Button
+          onClick={onMaxAllLevels}
+          className="btn-gradient gap-2"
+        >
+          <ArrowUp className="w-4 h-4" />
+          {t('pokemon.allMaxLevel')}
+        </Button>
+      </div>
+
+      {/* Sub-tabs for My Pokemon / Give Pokemon */}
+      <Tabs defaultValue="my-pokemon" className="space-y-4">
+        <TabsList className="w-full h-auto flex-wrap gap-2 bg-black/20 p-1.5 rounded-lg border border-white/5">
+          <TabsTrigger
+            value="my-pokemon"
+            className="flex-1 gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-cyan-600"
+          >
+            <Users className="w-4 h-4" />
+            {t('pokemon.myPokemonTab')}
+          </TabsTrigger>
+          <TabsTrigger
+            value="give-pokemon"
+            className="flex-1 gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600"
+          >
+            <Plus className="w-4 h-4" />
+            {t('pokemon.givePokemonTab')}
+          </TabsTrigger>
+        </TabsList>
+
+        {/* My Pokemon Tab */}
+        <TabsContent value="my-pokemon" className="mt-0 space-y-4">
+          {allPokemon.length === 0 ? (
+            <div className="section-card p-10 text-center text-muted-foreground">
+              {t('pokemon.noPokemon')}
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {allPokemon.map(({ pokemon, index, isBox }) => (
+                <PokemonCard
+                  key={`${isBox ? 'box' : 'team'}-${index}`}
+                  pokemon={pokemon}
+                  index={index}
+                  isBox={isBox}
+                  langIndex={langIndex}
+                  onUpdateLevel={onUpdateLevel}
+                  onRemove={onRemovePokemon}
+                  onUpdateTargetMode={onUpdateTargetMode}
+                  onToggleFavorite={onToggleFavorite}
+                  onToggleShiny={onToggleShiny}
+                  t={t}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Give Pokemon Tab */}
+        <TabsContent value="give-pokemon" className="mt-0 space-y-4">
+          {/* Search and Filter */}
+          <div className="section-card p-4 space-y-4">
+            {/* Search bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder={t('pokemon.searchPokemon')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-black/30 border-white/10"
+              />
+            </div>
+            
+            {/* Ability filter buttons */}
+            <div className="space-y-2">
+              <span className="text-xs text-muted-foreground">{t('pokemon.filterByAbility')}:</span>
+              <div className="flex flex-wrap gap-1.5">
+                <Button
+                  size="sm"
+                  variant={abilityFilter === 'all' ? 'default' : 'outline'}
+                  onClick={() => setAbilityFilter('all')}
+                  className={`h-7 text-xs ${abilityFilter === 'all' ? 'bg-primary' : 'border-white/10 hover:bg-white/5'}`}
+                >
+                  {t('pokemon.filterAll')}
+                </Button>
+                {uniqueAbilities.map(ability => (
+                  <Button
+                    key={ability}
+                    size="sm"
+                    variant={abilityFilter === ability ? 'default' : 'outline'}
+                    onClick={() => setAbilityFilter(ability)}
+                    className={`h-7 text-xs capitalize ${abilityFilter === ability ? 'bg-purple-600 hover:bg-purple-500' : 'border-white/10 hover:bg-white/5'}`}
+                  >
+                    {ability}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Options for adding */}
+            <div className="flex items-center gap-6 flex-wrap pt-3 border-t border-white/5">
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">{t('pokemon.level')}:</span>
+                <Input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={addLevel}
+                  onChange={(e) => setAddLevel(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
+                  className="w-20 h-8 bg-black/50 border-white/10 text-center"
+                />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setAddLevel(100)}
+                  className="h-8 text-xs text-green-400 hover:bg-green-500/10"
+                >
+                  MAX
+                </Button>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={addShiny}
+                  onCheckedChange={setAddShiny}
+                  className="data-[state=checked]:bg-yellow-500"
+                />
+                <span className="text-sm flex items-center gap-1">
+                  <Sparkles className="w-4 h-4 text-yellow-400" />
+                  Shiny
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Available Pokemon Grid */}
+          <div className="section-card p-4">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">
+              {t('pokemon.availablePokemon')} ({filteredAvailable.length})
+            </h3>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredAvailable.map((specie) => (
+                <GivePokemonCard
+                  key={specie.id}
+                  specie={specie}
+                  langIndex={langIndex}
+                  level={addLevel}
+                  onAdd={handleAddPokemon}
+                  t={t}
+                />
+              ))}
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+// Component for displaying owned Pokemon
+interface PokemonCardProps {
+  pokemon: TeamPokemon;
+  index: number;
+  isBox: boolean;
+  langIndex: number;
+  onUpdateLevel: (index: number, level: number, isBox: boolean) => void;
+  onRemove: (index: number, isBox: boolean) => void;
+  onUpdateTargetMode: (index: number, targetMode: TargetMode, isBox: boolean) => void;
+  onToggleFavorite: (index: number, isBox: boolean) => void;
+  onToggleShiny: (index: number, isBox: boolean) => void;
+  t: (key: string) => string;
+}
+
+function PokemonCard({
+  pokemon,
+  index,
+  isBox,
+  langIndex,
+  onUpdateLevel,
+  onRemove,
+  onUpdateTargetMode,
+  onToggleFavorite,
+  onToggleShiny,
+  t,
+}: PokemonCardProps) {
+  const specie = pokemon.specie;
+  const color = specie.color || '#666';
+
+  return (
+    <div
+      className={`section-card p-4 card-hover relative ${
+        pokemon.shiny ? 'ring-2 ring-yellow-500/50' : ''
+      }`}
+    >
+      {/* Header */}
+      <div className="flex items-start gap-3 mb-3">
+        <div
+          className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+          style={{ 
+            background: `linear-gradient(135deg, ${color}40, ${color}20)`
+          }}
+        >
+          {pokemon.shiny && <Sparkles className="w-5 h-5 text-yellow-400" />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-lg truncate capitalize">
+            {getPokemonDisplayName(specie, langIndex)}
+          </p>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <Badge
+              variant="secondary"
+              className="text-xs bg-white/5"
+            >
+              {isBox ? <Box className="w-3 h-3 mr-1" /> : <Users className="w-3 h-3 mr-1" />}
+              {isBox ? t('pokemon.boxPokemon') : t('pokemon.teamPokemon')}
+            </Badge>
+            {specie.ability && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge className="text-xs bg-purple-500/20 text-purple-300 cursor-help">
+                      {getAbilityName(specie.ability, langIndex)}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">{getAbilityDescription(specie.ability, langIndex)}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-1">
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => onToggleFavorite(index, isBox)}
+            className={`h-7 w-7 ${pokemon.favorite ? 'text-red-400' : 'text-muted-foreground hover:text-red-400'}`}
+          >
+            <Heart className={`w-4 h-4 ${pokemon.favorite ? 'fill-current' : ''}`} />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => onToggleShiny(index, isBox)}
+            className={`h-7 w-7 ${pokemon.shiny ? 'text-yellow-400' : 'text-muted-foreground hover:text-yellow-400'}`}
+          >
+            <Sparkles className="w-4 h-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => onRemove(index, isBox)}
+            className="h-7 w-7 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Level Control */}
+      <div className="space-y-2 mb-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">{t('pokemon.level')}</span>
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              min={1}
+              max={100}
+              value={pokemon.lvl || 1}
+              onChange={(e) => onUpdateLevel(index, parseInt(e.target.value) || 1, isBox)}
+              className="w-20 h-7 bg-black/50 border-white/10 text-center text-sm font-bold"
+            />
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onUpdateLevel(index, 100, isBox)}
+              className="h-7 px-2 text-xs text-green-400 hover:bg-green-500/10"
+            >
+              MAX
+            </Button>
+          </div>
+        </div>
+        
+        <Slider
+          value={[pokemon.lvl || 1]}
+          min={1}
+          max={100}
+          step={1}
+          onValueChange={([value]) => onUpdateLevel(index, value, isBox)}
+          className="py-1"
+        />
+      </div>
+
+      {/* Target Mode */}
+      <div className="flex items-center justify-between pt-2 border-t border-white/5">
+        <span className="text-xs text-muted-foreground">{t('pokemon.targetMode')}</span>
+        <Select
+          value={pokemon.targetMode || 'first'}
+          onValueChange={(value) => onUpdateTargetMode(index, value as TargetMode, isBox)}
+        >
+          <SelectTrigger className="w-[130px] h-7 text-xs bg-black/30 border-white/10">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {TARGET_MODES.map(mode => (
+              <SelectItem key={mode} value={mode} className="text-xs">
+                {t(`targetModes.${mode}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Evolution info */}
+      {specie.evolution && (
+        <div className="pt-2 mt-2 border-t border-white/5">
+          <p className="text-xs text-muted-foreground">
+            {t('pokemon.evolvesAt')} <span className="text-primary font-medium">{specie.evolution.level}</span>
+            {' → '}<span className="capitalize text-primary">{specie.evolution.pokemon}</span>
+          </p>
+        </div>
+      )}
+
+      {/* Stats row */}
+      <div className="flex items-center justify-between pt-2 mt-2 border-t border-white/5 text-xs text-muted-foreground">
+        {specie.power && (
+          <span>⚔️ {specie.power.base}</span>
+        )}
+        {specie.speed && (
+          <span>⚡ {specie.speed.base}</span>
+        )}
+        {specie.range && (
+          <span>🎯 {specie.range.base}</span>
+        )}
+        {specie.attackType && (
+          <Badge variant="outline" className="text-xs h-5 capitalize">
+            {specie.attackType}
+          </Badge>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Helper function to calculate stats at a given level
+function calculateStat(base: number, scale: number, level: number): number {
+  return Math.round(base + (scale * (level - 1)));
+}
+
+// Component for available Pokemon to add
+interface GivePokemonCardProps {
+  specie: PokemonSpecie;
+  langIndex: number;
+  level: number;
+  onAdd: (specie: PokemonSpecie, toBox: boolean) => void;
+  t: (key: string) => string;
+}
+
+function GivePokemonCard({
+  specie,
+  langIndex,
+  level,
+  onAdd,
+  t,
+}: GivePokemonCardProps) {
+  const [showMax, setShowMax] = useState(false);
+  const color = specie.color || '#666';
+  
+  // Calculate stats at current level or max level
+  const displayLevel = showMax ? 100 : level;
+  const power = specie.power ? calculateStat(specie.power.base, specie.power.scale, displayLevel) : 0;
+  const speed = specie.speed ? calculateStat(specie.speed.base, specie.speed.scale, displayLevel) : 0;
+  const range = specie.range ? calculateStat(specie.range.base, specie.range.scale, displayLevel) : 0;
+
+  return (
+    <div className="section-card p-3 card-hover">
+      <div className="flex items-center gap-2 mb-2">
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+          style={{ 
+            background: `linear-gradient(135deg, ${color}40, ${color}20)`
+          }}
+        >
+          <span className="text-sm">🎮</span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="font-medium text-sm truncate capitalize">
+            {getPokemonDisplayName(specie, langIndex)}
+          </p>
+          {specie.ability && (
+            <p className="text-xs text-purple-300 truncate">
+              {getAbilityName(specie.ability, langIndex)}
+            </p>
+          )}
+        </div>
+        {/* Lvl 100 preview button */}
+        <Button
+          size="sm"
+          variant={showMax ? 'default' : 'outline'}
+          onClick={() => setShowMax(!showMax)}
+          className={`h-6 px-1.5 text-[10px] shrink-0 ${showMax ? 'bg-green-600 hover:bg-green-500' : 'border-white/10 hover:bg-white/5'}`}
+        >
+          Lv.100
+        </Button>
+      </div>
+
+      {/* Stats at current/max level */}
+      <div className="flex items-center justify-between text-xs mb-2 px-1">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex items-center gap-1 text-red-400">
+                <Swords className="w-3 h-3" />{power}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent><p>{t('pokemon.power')}</p></TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex items-center gap-1 text-yellow-400">
+                <Zap className="w-3 h-3" />{speed}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent><p>{t('pokemon.speed')}</p></TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex items-center gap-1 text-blue-400">
+                <Target className="w-3 h-3" />{range}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent><p>{t('pokemon.range')}</p></TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <Badge variant="outline" className="text-[10px] h-4 px-1">
+          Lv.{displayLevel}
+        </Badge>
+      </div>
+
+      {/* Add buttons - stacked vertically to avoid overflow */}
+      <div className="flex flex-col gap-1.5">
+        <Button
+          size="sm"
+          onClick={() => onAdd(specie, false)}
+          className="w-full h-7 text-xs bg-blue-600 hover:bg-blue-500 gap-1"
+        >
+          <Users className="w-3 h-3" />
+          {t('pokemon.addToTeam')}
+        </Button>
+        <Button
+          size="sm"
+          onClick={() => onAdd(specie, true)}
+          variant="outline"
+          className="w-full h-7 text-xs border-white/10 hover:bg-white/5 gap-1"
+        >
+          <Box className="w-3 h-3" />
+          {t('pokemon.addToBox')}
+        </Button>
+      </div>
+    </div>
+  );
+}
