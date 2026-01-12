@@ -17,6 +17,9 @@ export const en = {
     invalidFormat: 'Invalid save format',
     cancel: 'Cancel',
     confirm: 'Confirm',
+    backHomeTitle: 'Back to Home?',
+    backHomeDesc: 'This will discard your current changes. Make sure to save them first (Copy Base64 or Download) so you don\'t lose them!',
+    backHomeConfirm: 'Back to Home',
   },
   tabs: {
     general: 'General',
@@ -163,6 +166,10 @@ export const en = {
     by: 'by',
     community: 'For the PokePath TD community',
   },
+  github: {
+    openSource: 'This project is Open Source!',
+    starMessage: 'If you like it, give us a ⭐ on GitHub!',
+  },
   seo: {
     title: 'PokePath TD Save Editor & Cheat Tool',
     description: 'The ultimate free online tool to edit your PokePath TD save file. Hack gold, give any Pokémon, unlock achievements, make shinies, and much more. No download required - works directly in your browser!',
@@ -205,6 +212,9 @@ export const fr = {
     invalidFormat: 'Format de sauvegarde invalide',
     cancel: 'Annuler',
     confirm: 'Confirmer',
+    backHomeTitle: 'Retour à l\'accueil ?',
+    backHomeDesc: 'Cela annulera vos modifications en cours. Veuillez bien les enregistrer (Copier Base64 ou Télécharger) pour ne pas les perdre !',
+    backHomeConfirm: 'Retour à l\'accueil',
   },
   tabs: {
     general: 'Général',
@@ -350,6 +360,10 @@ export const fr = {
     madeWith: 'Fait avec',
     by: 'par',
     community: 'Pour la communauté PokePath TD',
+  },
+  github: {
+    openSource: 'Ce projet est Open Source !',
+    starMessage: 'Si vous aimez, donnez-nous une ⭐ sur GitHub !',
   },
   seo: {
     title: 'PokePath TD Éditeur de Sauvegarde & Cheat',

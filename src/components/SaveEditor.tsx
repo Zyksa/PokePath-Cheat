@@ -1,8 +1,16 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, RotateCcw, Settings, Map, Swords, Sparkles, Trophy, BarChart3, Copy, Check } from 'lucide-react';
+import { Download, RotateCcw, Settings, Map, Swords, Sparkles, Trophy, BarChart3, Copy, Check, Home, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { GeneralEditor } from './editor/GeneralEditor';
 import { RoutesEditor } from './editor/RoutesEditor';
@@ -23,6 +31,7 @@ export function SaveEditor({ editor }: SaveEditorProps) {
   const { t } = useTranslation();
   const { saveData } = editor;
   const [copied, setCopied] = useState(false);
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
 
   if (!saveData) return null;
 
@@ -51,11 +60,24 @@ export function SaveEditor({ editor }: SaveEditorProps) {
     toast.success(t('common.resetSuccess'));
   };
 
+  const handleBackToHome = () => {
+    setShowBackConfirm(false);
+    editor.clearSave();
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Action Buttons */}
       <div className="flex items-center justify-between flex-wrap gap-4 p-4 section-card">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={() => setShowBackConfirm(true)}
+            variant="outline"
+            size="icon"
+            className="border-white/10 hover:bg-white/5"
+          >
+            <Home className="w-4 h-4" />
+          </Button>
           <span className="text-sm text-muted-foreground">
             Editing save for: <span className="font-bold text-foreground">{saveData.player.name}</span>
           </span>
@@ -192,6 +214,37 @@ export function SaveEditor({ editor }: SaveEditorProps) {
           />
         </TabsContent>
       </Tabs>
+
+      {/* Back to Home Confirmation Modal */}
+      <Dialog open={showBackConfirm} onOpenChange={setShowBackConfirm}>
+        <DialogContent className="sm:max-w-md bg-background/95 backdrop-blur-xl border-white/10">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-yellow-400" />
+              {t('common.backHomeTitle')}
+            </DialogTitle>
+            <DialogDescription>
+              {t('common.backHomeDesc')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowBackConfirm(false)}
+              className="border-white/10"
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              onClick={handleBackToHome}
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-500"
+            >
+              {t('common.backHomeConfirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

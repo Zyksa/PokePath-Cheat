@@ -354,6 +354,12 @@ export function useSaveEditor() {
     }
   }, [originalData, loadSave]);
 
+  const clearSave = useCallback(() => {
+    setSaveData(null);
+    setOriginalData('');
+    setError(null);
+  }, []);
+
   return {
     saveData,
     isLoading,
@@ -380,5 +386,6 @@ export function useSaveEditor() {
     updateStat,
     getEncodedSave,
     resetChanges,
+    clearSave,
   };
 }

@@ -4,7 +4,7 @@ import { FileUploader } from './components/FileUploader';
 import { SaveEditor } from './components/SaveEditor';
 import { useSaveEditor } from './hooks/useSaveEditor';
 import { Toaster } from '@/components/ui/sonner';
-import { Coins, Map, Swords, Sparkles, Trophy, BarChart3, Gift, Target, Heart, ArrowUpCircle, Box, Languages } from 'lucide-react';
+import { Coins, Map, Swords, Sparkles, Trophy, BarChart3, Gift, Target, Heart, ArrowUpCircle, Box, Languages, Github, Star } from 'lucide-react';
 import './i18n';
 
 function App() {
@@ -120,6 +120,28 @@ function App() {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Open Source Banner */}
+              <div className="max-w-4xl mx-auto">
+                <a
+                  href="https://github.com/Zyksa/PokePath-Cheat"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block glass rounded-2xl p-6 shadow-xl hover:scale-[1.02] transition-all duration-300 border border-white/10 hover:border-primary/30 group"
+                >
+                  <div className="flex items-center justify-center gap-4 flex-wrap">
+                    <Github className="w-8 h-8 text-white group-hover:text-primary transition-colors" />
+                    <div className="text-center">
+                      <p className="font-bold text-lg">{t('github.openSource')}</p>
+                      <p className="text-sm text-muted-foreground">{t('github.starMessage')}</p>
+                    </div>
+                    <div className="flex items-center gap-1 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30">
+                      <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                      <span className="font-semibold text-yellow-400">Star</span>
+                    </div>
+                  </div>
+                </a>
               </div>
             </div>
           ) : (
