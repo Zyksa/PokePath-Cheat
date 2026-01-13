@@ -18,6 +18,7 @@ interface EvolutionModalProps {
   isOpen: boolean;
   onClose: () => void;
   basePokemon: PokemonSpecie;
+  eggList: PokemonSpecie[];  // Add eggList to get real Pokemon data
   langIndex: number;
   level: number;
   shiny: boolean;
@@ -28,6 +29,7 @@ export function EvolutionModal({
   isOpen,
   onClose,
   basePokemon,
+  eggList,
   langIndex,
   level,
   shiny: initialShiny,
@@ -36,65 +38,10 @@ export function EvolutionModal({
   const { t } = useTranslation();
   const [selectedShiny, setSelectedShiny] = useState(initialShiny);
 
-  // Build the full evolution chain
+  // Build the full evolution chain using the shared helper function
   const evolutionChain = useMemo(() => {
-    const chain: { specie: PokemonSpecie; level: number }[] = [];
-    
-    // Start with the base pokemon
-    chain.push({ specie: basePokemon, level: 1 });
-    
-    // Follow the evolution chain
-    let current = basePokemon;
-    while (current.evolution) {
-      const nextName = current.evolution.pokemon.toLowerCase();
-      const nextLevel = current.evolution.level;
-      
-      // Find the evolved form in database
-      const dbPokemon = POKEMON_DATABASE.find(
-        p => p.names.en.toLowerCase() === nextName
-      );
-      
-      if (dbPokemon) {
-        // Convert to PokemonSpecie format
-        const evolvedSpecie: PokemonSpecie = {
-          id: dbPokemon.id,
-          name: [
-            dbPokemon.names.en,
-            dbPokemon.names.es,
-            dbPokemon.names.fr,
-            dbPokemon.names.pt,
-            dbPokemon.names.it,
-            dbPokemon.names.de,
-            dbPokemon.names.ja,
-            dbPokemon.names.ko,
-          ],
-          color: dbPokemon.color,
-          ability: {
-            id: dbPokemon.abilityId,
-            name: [dbPokemon.abilityNames.en, dbPokemon.abilityNames.es, dbPokemon.abilityNames.fr],
-            description: ['', '', '']
-          },
-          evolution: dbPokemon.evolution,
-          attackType: 'single',
-          costScale: 'mid',
-          critical: { base: 0, scale: 0 },
-          power: { base: 10, scale: 1 },
-          range: { base: 100, inner: 0, scale: 0 },
-          rangeType: 'circle',
-          speed: { base: 1000, scale: 0 },
-          sprite: { base: '', frames: 1, hold: 15, image: '' },
-          tiles: [1],
-        };
-        
-        chain.push({ specie: evolvedSpecie, level: nextLevel });
-        current = evolvedSpecie;
-      } else {
-        break;
-      }
-    }
-    
-    return chain;
-  }, [basePokemon]);
+    return getFullEvolutionChain(basePokemon, eggList);
+  }, [basePokemon, eggList]);
 
   const handleSelect = (specie: PokemonSpecie, toBox: boolean, minLevel: number) => {
     // Auto-adjust level to at least the evolution level
@@ -239,47 +186,135 @@ export function EvolutionModal({
   );
 }
 
-// Helper to get the correct evolution for a given level
-export function getEvolutionForLevel(basePokemon: PokemonSpecie, level: number): PokemonSpecie {
-  let current = basePokemon;
+// Helper to find the true base form in eggList
+function findTrueBaseForm(pokemon: PokemonSpecie, eggList: PokemonSpecie[]): PokemonSpecie {
+  // First check if this pokemon is already in eggList by ID or name
+  const inEggList = eggList.find(p => 
+    p.id === pokemon.id || 
+    p.name[0].toLowerCase() === pokemon.name[0].toLowerCase()
+  );
+  
+  if (inEggList) {
+    // Check if something evolves INTO this pokemon (by name in any language)
+    const pokemonNames = pokemon.name.map(n => n.toLowerCase());
+    const preEvoInEggList = eggList.find(p => 
+      p.evolution && pokemonNames.includes(p.evolution.pokemon.toLowerCase())
+    );
+    if (preEvoInEggList) {
+      return findTrueBaseForm(preEvoInEggList, eggList);
+    }
+    return inEggList;
+  }
+  
+  // Pokemon is not in eggList (it's an evolution like frogadier or greninja)
+  // We need to trace back through the database to find who evolves into this
+  // Search by any name in the pokemon's name array
+  const pokemonNames = pokemon.name.map(n => n.toLowerCase());
+  
+  // First find this pokemon in the database to get all its names
+  const dbPokemon = POKEMON_DATABASE.find(p => 
+    pokemonNames.includes(p.names.en.toLowerCase()) ||
+    pokemonNames.includes(p.names.fr.toLowerCase()) ||
+    p.id === pokemon.id
+  );
+  
+  if (dbPokemon) {
+    // Now find who evolves into this pokemon
+    const preEvoDb = POKEMON_DATABASE.find(p => 
+      p.evolution?.pokemon.toLowerCase() === dbPokemon.names.en.toLowerCase()
+    );
+    
+    if (preEvoDb) {
+      // Check if this pre-evolution is in eggList
+      const preEvoInEggList = eggList.find(p => 
+        p.name[0].toLowerCase() === preEvoDb.names.en.toLowerCase() ||
+        p.id === preEvoDb.id
+      );
+      
+      if (preEvoInEggList) {
+        // Found the base! But check if there's an even earlier form
+        return findTrueBaseForm(preEvoInEggList, eggList);
+      }
+      
+      // Pre-evo not in eggList, continue recursively with the database entry
+      const fakePreEvo: PokemonSpecie = {
+        ...pokemon,
+        id: preEvoDb.id,
+        name: [preEvoDb.names.en, preEvoDb.names.es, preEvoDb.names.fr, preEvoDb.names.pt, preEvoDb.names.it, preEvoDb.names.de, preEvoDb.names.ja, preEvoDb.names.ko],
+      };
+      return findTrueBaseForm(fakePreEvo, eggList);
+    }
+  }
+  
+  // Fallback: return the original pokemon
+  return pokemon;
+}
+
+// Helper function to create an evolution from a base Pokemon using database info
+function createEvolutionFromBase(trueBasePokemon: PokemonSpecie, evolutionName: string): PokemonSpecie | null {
+  // Find the evolution data in our database
+  const dbEvolution = POKEMON_DATABASE.find(
+    p => p.names.en.toLowerCase() === evolutionName.toLowerCase()
+  );
+  
+  if (!dbEvolution) return null;
+  
+  // Get the base form's name for sprite path construction
+  const baseSpriteName = trueBasePokemon.name[0].toLowerCase();
+  
+  // Create the evolved Pokemon using base Pokemon's stats structure but with evolved data
+  return {
+    ...trueBasePokemon,
+    id: dbEvolution.id,
+    name: [
+      dbEvolution.names.en,
+      dbEvolution.names.es,
+      dbEvolution.names.fr,
+      dbEvolution.names.pt,
+      dbEvolution.names.it,
+      dbEvolution.names.de,
+      dbEvolution.names.ja,
+      dbEvolution.names.ko,
+    ],
+    color: dbEvolution.color,
+    ability: {
+      id: dbEvolution.abilityId,
+      name: [dbEvolution.abilityNames.en, dbEvolution.abilityNames.es, dbEvolution.abilityNames.fr],
+      description: trueBasePokemon.ability?.description || ['', '', ''],
+    },
+    evolution: dbEvolution.evolution,
+    // Build sprite paths directly with the evolution name
+    sprite: trueBasePokemon.sprite ? {
+      base: trueBasePokemon.sprite.base.replace(baseSpriteName, evolutionName.toLowerCase()),
+      frames: trueBasePokemon.sprite.frames,
+      hold: trueBasePokemon.sprite.hold,
+      image: trueBasePokemon.sprite.image.replace(baseSpriteName, evolutionName.toLowerCase()),
+    } : undefined,
+  };
+}
+
+// Helper to get the correct evolution for a given level using eggList
+export function getEvolutionForLevel(pokemon: PokemonSpecie, level: number, eggList: PokemonSpecie[]): PokemonSpecie {
+  // Find the true base form first
+  const trueBase = findTrueBaseForm(pokemon, eggList);
+  
+  let current = trueBase;
   
   while (current.evolution && level >= current.evolution.level) {
     const nextName = current.evolution.pokemon.toLowerCase();
     
-    const dbPokemon = POKEMON_DATABASE.find(
-      p => p.names.en.toLowerCase() === nextName
+    // First try to find in eggList (real game data)
+    let evolvedSpecie = eggList.find(
+      p => p.name[0].toLowerCase() === nextName
     );
     
-    if (dbPokemon) {
-      current = {
-        id: dbPokemon.id,
-        name: [
-          dbPokemon.names.en,
-          dbPokemon.names.es,
-          dbPokemon.names.fr,
-          dbPokemon.names.pt,
-          dbPokemon.names.it,
-          dbPokemon.names.de,
-          dbPokemon.names.ja,
-          dbPokemon.names.ko,
-        ],
-        color: dbPokemon.color,
-        ability: {
-          id: dbPokemon.abilityId,
-          name: [dbPokemon.abilityNames.en, dbPokemon.abilityNames.es, dbPokemon.abilityNames.fr],
-          description: ['', '', '']
-        },
-        evolution: dbPokemon.evolution,
-        attackType: 'single',
-        costScale: 'mid',
-        critical: { base: 0, scale: 0 },
-        power: { base: 10, scale: 1 },
-        range: { base: 100, inner: 0, scale: 0 },
-        rangeType: 'circle',
-        speed: { base: 1000, scale: 0 },
-        sprite: { base: '', frames: 1, hold: 15, image: '' },
-        tiles: [1],
-      };
+    // If not found in eggList, create from TRUE base Pokemon
+    if (!evolvedSpecie) {
+      evolvedSpecie = createEvolutionFromBase(trueBase, nextName) || undefined;
+    }
+    
+    if (evolvedSpecie) {
+      current = evolvedSpecie;
     } else {
       break;
     }
@@ -288,97 +323,32 @@ export function getEvolutionForLevel(basePokemon: PokemonSpecie, level: number):
   return current;
 }
 
-// Helper to get the full evolution chain from any Pokemon (including pre-evolutions)
-export function getFullEvolutionChain(pokemon: PokemonSpecie): { specie: PokemonSpecie; level: number }[] {
+// Helper to get the full evolution chain from any Pokemon using eggList
+export function getFullEvolutionChain(pokemon: PokemonSpecie, eggList: PokemonSpecie[]): { specie: PokemonSpecie; level: number }[] {
   const chain: { specie: PokemonSpecie; level: number }[] = [];
   
-  // First, find the base form by checking if any Pokemon evolves INTO this one
-  let basePokemon = pokemon;
-  let foundPreEvo = true;
-  
-  while (foundPreEvo) {
-    foundPreEvo = false;
-    for (const dbPokemon of POKEMON_DATABASE) {
-      if (dbPokemon.evolution?.pokemon.toLowerCase() === basePokemon.name[0].toLowerCase()) {
-        // Found a pre-evolution
-        basePokemon = {
-          id: dbPokemon.id,
-          name: [
-            dbPokemon.names.en,
-            dbPokemon.names.es,
-            dbPokemon.names.fr,
-            dbPokemon.names.pt,
-            dbPokemon.names.it,
-            dbPokemon.names.de,
-            dbPokemon.names.ja,
-            dbPokemon.names.ko,
-          ],
-          color: dbPokemon.color,
-          ability: {
-            id: dbPokemon.abilityId,
-            name: [dbPokemon.abilityNames.en, dbPokemon.abilityNames.es, dbPokemon.abilityNames.fr],
-            description: ['', '', '']
-          },
-          evolution: dbPokemon.evolution,
-          attackType: 'single',
-          costScale: 'mid',
-          critical: { base: 0, scale: 0 },
-          power: { base: 10, scale: 1 },
-          range: { base: 100, inner: 0, scale: 0 },
-          rangeType: 'circle',
-          speed: { base: 1000, scale: 0 },
-          sprite: { base: '', frames: 1, hold: 15, image: '' },
-          tiles: [1],
-        };
-        foundPreEvo = true;
-        break;
-      }
-    }
-  }
+  // Find the true base form
+  const trueBase = findTrueBaseForm(pokemon, eggList);
   
   // Now build the chain from the base form forward
-  chain.push({ specie: basePokemon, level: 1 });
+  chain.push({ specie: trueBase, level: 1 });
   
-  let current = basePokemon;
+  let current = trueBase;
   while (current.evolution) {
     const nextName = current.evolution.pokemon.toLowerCase();
     const nextLevel = current.evolution.level;
     
-    const dbPokemon = POKEMON_DATABASE.find(
-      p => p.names.en.toLowerCase() === nextName
+    // First try to find in eggList
+    let evolvedSpecie = eggList.find(
+      p => p.name[0].toLowerCase() === nextName
     );
     
-    if (dbPokemon) {
-      const evolvedSpecie: PokemonSpecie = {
-        id: dbPokemon.id,
-        name: [
-          dbPokemon.names.en,
-          dbPokemon.names.es,
-          dbPokemon.names.fr,
-          dbPokemon.names.pt,
-          dbPokemon.names.it,
-          dbPokemon.names.de,
-          dbPokemon.names.ja,
-          dbPokemon.names.ko,
-        ],
-        color: dbPokemon.color,
-        ability: {
-          id: dbPokemon.abilityId,
-          name: [dbPokemon.abilityNames.en, dbPokemon.abilityNames.es, dbPokemon.abilityNames.fr],
-          description: ['', '', '']
-        },
-        evolution: dbPokemon.evolution,
-        attackType: 'single',
-        costScale: 'mid',
-        critical: { base: 0, scale: 0 },
-        power: { base: 10, scale: 1 },
-        range: { base: 100, inner: 0, scale: 0 },
-        rangeType: 'circle',
-        speed: { base: 1000, scale: 0 },
-        sprite: { base: '', frames: 1, hold: 15, image: '' },
-        tiles: [1],
-      };
-      
+    // If not found, create from TRUE base Pokemon using database
+    if (!evolvedSpecie) {
+      evolvedSpecie = createEvolutionFromBase(trueBase, nextName) || undefined;
+    }
+    
+    if (evolvedSpecie) {
       chain.push({ specie: evolvedSpecie, level: nextLevel });
       current = evolvedSpecie;
     } else {

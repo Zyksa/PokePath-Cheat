@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Swords, ArrowUp, Plus, Trash2, Heart, Search, Sparkles, Box, Users, Zap, Target, ArrowRight, AlertTriangle } from 'lucide-react';
+import { Swords, ArrowUp, Plus, Trash2, Heart, Search, Sparkles, Box, Users, Zap, Target, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -120,15 +120,30 @@ export function PokemonEditor({
     return Array.from(abilities).sort();
   }, [availablePokemon]);
 
-  // Filter available Pokemon based on search and ability
+  // Get IDs of Pokemon already owned (team + box)
+  const ownedPokemonIds = useMemo(() => {
+    const ids = new Set<number>();
+    (saveData.team || []).forEach(p => ids.add(p.specie.id));
+    (saveData.box || []).forEach(p => ids.add(p.specie.id));
+    return ids;
+  }, [saveData.team, saveData.box]);
+
+  // Filter available Pokemon based on search, ability, and not already owned - sorted alphabetically
   const filteredAvailable = useMemo(() => {
-    return availablePokemon.filter(pokemon => {
-      const name = getPokemonDisplayName(pokemon, langIndex).toLowerCase();
-      const matchesSearch = name.includes(searchTerm.toLowerCase());
-      const matchesAbility = abilityFilter === 'all' || pokemon.ability?.id === abilityFilter;
-      return matchesSearch && matchesAbility;
-    });
-  }, [availablePokemon, searchTerm, abilityFilter, langIndex]);
+    return availablePokemon
+      .filter(pokemon => {
+        const name = getPokemonDisplayName(pokemon, langIndex).toLowerCase();
+        const matchesSearch = name.includes(searchTerm.toLowerCase());
+        const matchesAbility = abilityFilter === 'all' || pokemon.ability?.id === abilityFilter;
+        const notOwned = !ownedPokemonIds.has(pokemon.id);
+        return matchesSearch && matchesAbility && notOwned;
+      })
+      .sort((a, b) => {
+        const nameA = getPokemonDisplayName(a, langIndex).toLowerCase();
+        const nameB = getPokemonDisplayName(b, langIndex).toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+  }, [availablePokemon, searchTerm, abilityFilter, langIndex, ownedPokemonIds]);
 
   const handleAddPokemon = (specie: PokemonSpecie, toBox: boolean, shiny: boolean, level: number) => {
     onAddPokemon(specie, toBox, shiny, level);
@@ -158,7 +173,7 @@ export function PokemonEditor({
     // Check if Pokemon should evolve
     const currentSpecie = pokemon.specie;
     if (currentSpecie.evolution && newLevel >= currentSpecie.evolution.level) {
-      const evolvedSpecie = getEvolutionForLevel(currentSpecie, newLevel);
+      const evolvedSpecie = getEvolutionForLevel(currentSpecie, newLevel, availablePokemon);
       
       // If the pokemon evolved to a different species
       if (evolvedSpecie.id !== currentSpecie.id) {
@@ -315,6 +330,7 @@ export function PokemonEditor({
                   index={index}
                   isBox={isBox}
                   langIndex={langIndex}
+                  eggList={availablePokemon}
                   onUpdateLevel={(idx, lvl, box) => handleLevelChange(idx, lvl, box, pokemon)}
                   onRemove={handleRemovePokemon}
                   onUpdateTargetMode={onUpdateTargetMode}
@@ -435,6 +451,7 @@ export function PokemonEditor({
           langIndex={langIndex}
           level={addLevel}
           shiny={addShiny}
+          eggList={availablePokemon}
           onConfirm={handleAddPokemon}
         />
       )}
@@ -478,6 +495,7 @@ interface PokemonCardProps {
   index: number;
   isBox: boolean;
   langIndex: number;
+  eggList: PokemonSpecie[];
   onUpdateLevel: (index: number, level: number, isBox: boolean) => void;
   onRemove: (index: number, isBox: boolean) => void;
   onUpdateTargetMode: (index: number, targetMode: TargetMode, isBox: boolean) => void;
@@ -492,6 +510,7 @@ function PokemonCard({
   index,
   isBox,
   langIndex,
+  eggList,
   onUpdateLevel,
   onRemove,
   onUpdateTargetMode,
@@ -504,13 +523,7 @@ function PokemonCard({
   const color = specie.color || '#666';
   
   // Get full evolution chain for this Pokemon
-  const evolutionChain = useMemo(() => getFullEvolutionChain(specie), [specie]);
-  
-  // Find current position in evolution chain
-  const currentIndex = evolutionChain.findIndex(e => e.specie.id === specie.id);
-  
-  // Get available evolutions (forms after current)
-  const availableEvolutions = evolutionChain.slice(currentIndex + 1);
+  const evolutionChain = useMemo(() => getFullEvolutionChain(specie, eggList), [specie, eggList]);
 
   return (
     <div
@@ -620,31 +633,43 @@ function PokemonCard({
         />
       </div>
 
-      {/* Evolution shortcuts */}
-      {availableEvolutions.length > 0 && (
+      {/* Evolution selector - always visible if there are evolutions */}
+      {evolutionChain.length > 1 && (
         <div className="pt-2 mb-2 border-t border-white/5">
           <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
             <ArrowUp className="w-3 h-3" />
-            {t('pokemon.evolveShortcuts')}
+            {t('pokemon.selectEvolution')}
           </p>
-          <div className="flex flex-wrap gap-1.5">
-            {availableEvolutions.map((evo) => (
-              <Button
-                key={evo.specie.id}
-                size="sm"
-                variant="outline"
-                onClick={() => onEvolveTo(index, evo.specie, evo.level, isBox)}
-                className="h-7 text-xs border-white/10 hover:bg-primary/20 hover:border-primary/50 gap-1"
-                style={{
-                  background: `linear-gradient(135deg, ${evo.specie.color}10, transparent)`
-                }}
-              >
-                <ArrowRight className="w-3 h-3" />
-                <span className="capitalize">{getPokemonDisplayName(evo.specie, langIndex)}</span>
-                <span className="text-[10px] text-muted-foreground">Lv.{evo.level}</span>
-              </Button>
-            ))}
-          </div>
+          <Select
+            value={specie.id.toString()}
+            onValueChange={(value) => {
+              const selected = evolutionChain.find(e => e.specie.id.toString() === value);
+              if (selected && selected.specie.id !== specie.id) {
+                onEvolveTo(index, selected.specie, selected.level, isBox);
+              }
+            }}
+          >
+            <SelectTrigger className="w-full h-8 text-xs bg-black/30 border-white/10">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {evolutionChain.map((evo) => (
+                <SelectItem 
+                  key={evo.specie.id} 
+                  value={evo.specie.id.toString()} 
+                  className="text-xs"
+                >
+                  <span className="capitalize flex items-center gap-2">
+                    {getPokemonDisplayName(evo.specie, langIndex)}
+                    {evo.level > 1 && (
+                      <span className="text-muted-foreground">(Lv.{evo.level}+)</span>
+                    )}
+                    {evo.specie.id === specie.id && " ✓"}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
 
@@ -668,11 +693,11 @@ function PokemonCard({
         </Select>
       </div>
 
-      {/* Evolution info - only show if not already showing shortcuts */}
-      {specie.evolution && availableEvolutions.length === 0 && (
+      {/* Evolution info - only show if this Pokemon has no evolutions at all */}
+      {evolutionChain.length === 1 && (
         <div className="pt-2 mt-2 border-t border-white/5">
           <p className="text-xs text-muted-foreground">
-            {t('pokemon.maxEvolution')} ✨
+            {t('pokemon.noEvolution')}
           </p>
         </div>
       )}

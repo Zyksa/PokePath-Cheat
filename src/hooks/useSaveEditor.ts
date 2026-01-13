@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import type { SaveData, PlayerStats, PokemonSpecie, TeamPokemon, TargetMode } from '@/types/save';
 import { decodeSaveData, encodeSaveData } from '@/utils/saveUtils';
 import { calculateStars } from '@/types/save';
-import { POKEMON_DATABASE } from '@/data/pokemonData';
 
 export function useSaveEditor() {
   const [saveData, setSaveData] = useState<SaveData | null>(null);
@@ -189,42 +188,27 @@ export function useSaveEditor() {
       ...(saveData.box || []).map(p => p.specie.id),
     ]);
     
-    // Only add base forms (IDs < 100 = base Pokemon)
-    const basePokemon = POKEMON_DATABASE.filter(p => p.id < 100 && !existingIds.has(p.id));
+    // Get all Pokemon from eggList (real game data)
+    const eggList = saveData.shop?.eggList || [];
     
-    // Convert to TeamPokemon and add to box
-    const newPokemon: TeamPokemon[] = basePokemon.map(dbPokemon => ({
+    // Find base forms only (Pokemon that no other Pokemon evolves INTO)
+    // A Pokemon is a base form if its name is NOT in any other Pokemon's evolution.pokemon field
+    const evolutionTargets = new Set(
+      eggList
+        .filter(p => p.evolution)
+        .map(p => p.evolution!.pokemon.toLowerCase())
+    );
+    
+    const basePokemon = eggList.filter(p => 
+      !evolutionTargets.has(p.name[0].toLowerCase()) && // Not an evolution target
+      !existingIds.has(p.id) // Not already owned
+    );
+    
+    // Convert to TeamPokemon using REAL game data
+    const newPokemon: TeamPokemon[] = basePokemon.map(specie => ({
       favorite: false,
       lvl: Math.max(1, Math.min(100, level)),
-      specie: {
-        id: dbPokemon.id,
-        name: [
-          dbPokemon.names.en,
-          dbPokemon.names.es,
-          dbPokemon.names.fr,
-          dbPokemon.names.pt,
-          dbPokemon.names.it,
-          dbPokemon.names.de,
-          dbPokemon.names.ja,
-          dbPokemon.names.ko,
-        ],
-        color: dbPokemon.color,
-        ability: {
-          id: dbPokemon.abilityId,
-          name: [dbPokemon.abilityNames.en, dbPokemon.abilityNames.es, dbPokemon.abilityNames.fr],
-          description: ['', '', '']
-        },
-        evolution: dbPokemon.evolution,
-        attackType: 'single' as const,
-        costScale: 'mid' as const,
-        critical: { base: 0, scale: 0 },
-        power: { base: 10, scale: 1 },
-        range: { base: 100, inner: 0, scale: 0 },
-        rangeType: 'circle' as const,
-        speed: { base: 1000, scale: 0 },
-        sprite: { base: '', frames: 1, hold: 15, image: '' },
-        tiles: [1],
-      } as PokemonSpecie,
+      specie: { ...specie }, // Copy the real specie data from eggList!
       targetMode: 'first',
       shiny,
     }));
